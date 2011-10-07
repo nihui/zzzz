@@ -43,7 +43,8 @@ void ComposerWidget::setCharLimit( int limit )
 void ComposerWidget::composeReply( const PostWrapper* post )
 {
     m_post->myAccount = post->myAccount;
-    m_post->m_post.replyToStatusId = post->m_post.replyToStatusId;
+    m_post->m_post.replyToStatusId = post->m_post.id;
+    setPlainText( "@" + post->m_post.user.screenName + " " + toPlainText() );
     setFocus();
 }
 

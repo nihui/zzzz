@@ -80,16 +80,17 @@ void TwitterCompatibleAPIMicroBlog::createPost( const Zzzz::Post& post, QString&
 {
     apiUrl = apiRoot() + "/statuses/update.json";
     params.insert( "status", QUrl::toPercentEncoding( post.text ) );
+    params.insert( "in_reply_to_status_id", post.replyToStatusId.toUtf8() );
 }
 
 void TwitterCompatibleAPIMicroBlog::removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    apiUrl = QString( "%1/statuses/destroy/%2.json" ).arg( apiRoot() ).arg( post.id );
+    apiUrl = apiRoot() + QString( "/statuses/destroy/%1.json" ).arg( post.id );
 }
 
 void TwitterCompatibleAPIMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    apiUrl = QString( "%1/statuses/retweet/%2.json" ).arg( apiRoot() ).arg( post.id );
+    apiUrl = apiRoot() + QString( "/statuses/retweet/%1.json" ).arg( post.id );
 }
 
 void TwitterCompatibleAPIMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )
