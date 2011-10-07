@@ -31,7 +31,7 @@ void TwitterCompatibleAPIMicroBlog::oauthAuthorize( QString& apiUrl, ParamMap& p
 void TwitterCompatibleAPIMicroBlog::oauthAccessToken( QString& apiUrl, HttpMethod& method, ParamMap& params )
 {
     apiUrl = apiRoot() + "/oauth/access_token";
-    method = POST;
+    method = GET;
 }
 
 void TwitterCompatibleAPIMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& params )
@@ -89,7 +89,7 @@ void TwitterCompatibleAPIMicroBlog::removePost( const Zzzz::Post& post, QString&
 
 void TwitterCompatibleAPIMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    apiUrl = QString( "%1/statuses/retweet/%1.json" ).arg( apiRoot() ).arg( post.id );
+    apiUrl = QString( "%1/statuses/retweet/%2.json" ).arg( apiRoot() ).arg( post.id );
 }
 
 void TwitterCompatibleAPIMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )

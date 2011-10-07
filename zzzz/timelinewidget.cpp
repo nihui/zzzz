@@ -108,9 +108,9 @@ void TimelineWidget::updateHTML()
     while ( it != end ) {
         const PostWrapper* post = *it;
 
-        ++i;
-        post->m_replayLink = QString( "zzzz:reply:%1" ).arg( i );
+        post->m_replyLink = QString( "zzzz:reply:%1" ).arg( i );
         post->m_retweetLink = QString( "zzzz:retweet:%1" ).arg( i );
+        ++i;
 
         ++it;
 
