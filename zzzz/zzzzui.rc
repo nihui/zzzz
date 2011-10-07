@@ -1,0 +1,8 @@
+<!DOCTYPE kpartgui>
+<kpartgui name="ktucao" version="1">
+<MenuBar>
+  <Menu name="file">
+    <Action name="update_timeline" />
+  </Menu>
+</MenuBar>
+</kpartgui>

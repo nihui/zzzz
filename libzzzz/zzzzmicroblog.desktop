@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=ServiceType
+X-KDE-ServiceType=Zzzz/MicroBlog
+X-KDE-Derived=Zzzz/Plugin
+Comment=Zzzz MicroBlog Plugin
+Comment[zh_CN]=Zzzz 微博客插件

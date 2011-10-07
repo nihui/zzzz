@@ -1,0 +1,15 @@
+[Desktop Entry]
+Icon=preferences-plugin
+Type=Service
+X-KDE-ServiceTypes=KCModule
+
+X-KDE-Library=kcm_zzzz_pluginconfig
+X-KDE-FactoryName=ZzzzPluginConfigFactory
+X-KDE-ParentApp=zzzz
+X-KDE-ParentComponents=zzzz
+X-KDE-Weight=200
+
+Name=Plugins
+Name[zh_CN]=插件
+Comment=Select and Configure Plugins
+Comment[zh_CN]=选择并配置插件

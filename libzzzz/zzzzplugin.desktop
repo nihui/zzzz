@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=ServiceType
+X-KDE-ServiceType=Zzzz/Plugin
+X-KDE-Derived=KPluginInfo
+Comment=Zzzz Plugin
+Comment[zh_CN]=Zzzz 插件
+

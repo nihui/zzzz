@@ -1,0 +1,15 @@
+<table>
+{% for post in posts %}
+    <tr>
+        <td>
+            <img src="{{ post.user.profileImageUrl }}" width="48" height="48" />
+        </td>
+        <td style="word-break:break-all">
+            <a href="{{ post.originalPic }}"><img align="right" src="{{ post.thumbnailPic }}" /></a>
+            {{ post.text }}
+            <a href="{{ post.replyLink }}">reply</a>
+            <a href="{{ post.retweetLink }}">retweet</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>

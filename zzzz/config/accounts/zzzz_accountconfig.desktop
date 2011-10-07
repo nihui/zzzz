@@ -1,0 +1,15 @@
+[Desktop Entry]
+Icon=user-properties
+Type=Service
+X-KDE-ServiceTypes=KCModule
+
+X-KDE-Library=kcm_zzzz_accountconfig
+X-KDE-FactoryName=ZzzzAccountConfigFactory
+X-KDE-ParentApp=zzzz
+X-KDE-ParentComponents=zzzz
+X-KDE-Weight=20
+
+Name=Accounts
+Name[zh_CN]=账户
+Comment=Manage Your Accounts
+Comment[zh_CN]=管理您的账户

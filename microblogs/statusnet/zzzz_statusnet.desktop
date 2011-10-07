@@ -1,0 +1,18 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Service
+X-Choqok-Version=1
+Icon=statusnet_microblog
+ServiceTypes=Zzzz/MicroBlog
+X-KDE-Library=zzzz_statusnet
+X-KDE-PluginInfo-Author=Ni Hui
+X-KDE-PluginInfo-Email=shuizhuyuanluo@gmail.com
+X-KDE-PluginInfo-Name=zzzz_statusnet
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=http://shuizhuyuanluo.blog.163.com
+X-KDE-PluginInfo-Category=MicroBlog
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=false
+Name=StatusNet
+Comment=status.net Service
