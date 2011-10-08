@@ -22,6 +22,7 @@ class TimelineWidget : public QWidget
     public Q_SLOTS:
         void updateHTML();
     Q_SIGNALS:
+        void userClicked( const PostWrapper* post );
         void replyClicked( const PostWrapper* post );
         void retweetClicked( const PostWrapper* post );
     private Q_SLOTS:

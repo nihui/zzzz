@@ -54,7 +54,18 @@ void SohuMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& param
             apiUrl = "http://api.t.sohu.com.cn/statuses/public_timeline.json";
             params.insert( "count", "20" );
             break;
+        case Mentions:
+            apiUrl = "http://api.t.sohu.com.cn/statuses/mentions.json";
+            params.insert( "count", "20" );
+            break;
     }
+}
+
+void SohuMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+{
+    apiUrl = "http://api.t.sohu.com/statuses/user_timeline.json";
+    params.insert( "nick_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "count", "20" );
 }
 
 QStringList SohuMicroBlog::timelines() const
@@ -64,11 +75,7 @@ QStringList SohuMicroBlog::timelines() const
 
 void SohuMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params )
 {
-    if ( timeline == "mentions" ) {
-        apiUrl = "http://api.t.sohu.com.cn/statuses/mentions.json";
-        params.insert( "count", "20" );
-    }
-    else if ( timeline == "comments" ) {
+    if ( timeline == "comments" ) {
         apiUrl = "http://api.t.sohu.com.cn/statuses/comments_timeline.json";
         params.insert( "count", "20" );
     }
@@ -76,25 +83,22 @@ void SohuMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl, Pa
 
 int SohuMicroBlog::charLimit() const
 {
-    return 150;
+    return 140;
 }
 
 void SohuMicroBlog::createPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "SohuMicroBlog::createPost";
     apiUrl = "http://api.t.sohu.com/statuses/update.json";
     params.insert( "status", QUrl::toPercentEncoding( post.text ) );
 }
 
 void SohuMicroBlog::removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "SohuMicroBlog::removePost";
     apiUrl = QString( "http://api.t.sohu.com/statuses/destroy/%1.json" ).arg( post.id );
 }
 
 void SohuMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "SohuMicroBlog::retweetPost";
     apiUrl = QString( "http://api.t.sohu.com/statuses/transmit/%1.json" ).arg( post.id );
 }
 

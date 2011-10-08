@@ -108,6 +108,7 @@ void TimelineWidget::updateHTML()
     while ( it != end ) {
         const PostWrapper* post = *it;
 
+        post->m_userLink = QString( "zzzz:user:%1" ).arg( i );
         post->m_replyLink = QString( "zzzz:reply:%1" ).arg( i );
         post->m_retweetLink = QString( "zzzz:retweet:%1" ).arg( i );
         ++i;
@@ -149,7 +150,11 @@ void TimelineWidget::handleUrlString( const QString& url )
         return;
 
     kWarning() << url;
-    if ( url.startsWith( "zzzz:reply" ) ) {
+    if ( url.startsWith( "zzzz:user" ) ) {
+        int i = url.section( ':', 2, -1 ).toInt();
+        emit userClicked( m_posts.at( i ) );
+    }
+    else if ( url.startsWith( "zzzz:reply" ) ) {
         int i = url.section( ':', 2, -1 ).toInt();
         emit replyClicked( m_posts.at( i ) );
     }

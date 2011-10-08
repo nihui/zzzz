@@ -61,6 +61,13 @@ void NeteaseMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& pa
     }
 }
 
+void NeteaseMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+{
+    apiUrl = "http://api.t.163.com/statuses/user_timeline.json";
+    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "count", "20" );
+}
+
 QStringList NeteaseMicroBlog::timelines() const
 {
     return QStringList();// << "retweets" << "location";

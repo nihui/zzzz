@@ -24,5 +24,6 @@ bool PostWrapper::favorited() const { return m_post.favorited; }
 QString PostWrapper::thumbnailPic() const { return m_post.thumbnailPic; }
 QString PostWrapper::originalPic() const { return m_post.originalPic; }
 
+QString PostWrapper::userLink() const { return m_userLink; }
 QString PostWrapper::replyLink() const { return m_replyLink; }
 QString PostWrapper::retweetLink() const { return m_retweetLink; }

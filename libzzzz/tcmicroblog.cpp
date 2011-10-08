@@ -1,6 +1,6 @@
 #include "tcmicroblog.h"
 
-#include <types.h>
+#include "types.h"
 
 #include <QDebug>
 #include <QUrl>
@@ -54,19 +54,22 @@ void TwitterCompatibleAPIMicroBlog::updateTimeline( Timeline t, QString& apiUrl,
     }
 }
 
+void TwitterCompatibleAPIMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+{
+    apiUrl = apiRoot() + "/statuses/user_timeline.json";
+    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "count", "20" );
+}
+
 QStringList TwitterCompatibleAPIMicroBlog::timelines() const
 {
-    return QStringList();// << "friends" << "mentions";
+    return QStringList();// << "friends";
 }
 
 void TwitterCompatibleAPIMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params )
 {
     if ( timeline == "friends" ) {
         apiUrl = apiRoot() + "/statuses/friends_timeline.json";
-        params.insert( "count", "20" );
-    }
-    else if ( timeline == "mentions" ) {
-        apiUrl = apiRoot() + "/statuses/mentions.json";
         params.insert( "count", "20" );
     }
 }

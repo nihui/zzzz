@@ -73,19 +73,24 @@ void TencentMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& pa
     }
 }
 
+void TencentMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+{
+    apiUrl = "http://open.t.qq.com/api/statuses/user_timeline";
+    params.insert( "format", "json" );
+    params.insert( "name", user.name.toUtf8().toPercentEncoding() );
+    params.insert( "pageflag", "0" );
+    params.insert( "pagetime", "0" );
+    params.insert( "reqnum", "20" );
+}
+
 QStringList TencentMicroBlog::timelines() const
 {
-    return QStringList();// << "user" << "ht";
+    return QStringList();// << "ht";
 }
 
 void TencentMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params )
 {
-    if ( timeline == "mentions" ) {
-        apiUrl = "http://open.t.qq.com/api/statuses/mentions_timeline";
-        params.insert( "format", "json" );
-        params.insert( "reqnum", "20" );
-    }
-    else if ( timeline == "ht" ) {
+    if ( timeline == "ht" ) {
         apiUrl = "http://open.t.qq.com/api/statuses/ht_timeline";
         params.insert( "format", "json" );
         params.insert( "reqnum", "20" );
@@ -99,12 +104,11 @@ void TencentMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl,
 
 int TencentMicroBlog::charLimit() const
 {
-    return 150;
+    return 140;
 }
 
 void TencentMicroBlog::createPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "TencentMicroBlog::createPost";
     apiUrl = "http://open.t.qq.com/api/t/add";
     params.insert( "format", "json" );
     params.insert( "content", QUrl::toPercentEncoding( post.text ) );
@@ -113,7 +117,6 @@ void TencentMicroBlog::createPost( const Zzzz::Post& post, QString& apiUrl, Para
 
 void TencentMicroBlog::removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "TencentMicroBlog::removePost";
     apiUrl = "http://open.t.qq.com/api/t/del";
     params.insert( "format", "json" );
     params.insert( "id", post.id.toUtf8() );
@@ -121,7 +124,6 @@ void TencentMicroBlog::removePost( const Zzzz::Post& post, QString& apiUrl, Para
 
 void TencentMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "TencentMicroBlog::retweetPost";
     apiUrl = "http://open.t.qq.com/api/t/re_add";
     params.insert( "format", "json" );
     params.insert( "content", QUrl::toPercentEncoding( post.text ) );

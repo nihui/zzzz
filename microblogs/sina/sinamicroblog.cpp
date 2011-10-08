@@ -62,22 +62,21 @@ void SinaMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& param
     }
 }
 
+void SinaMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+{
+    apiUrl = "http://api.t.sina.com.cn/statuses/user_timeline.json";
+    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "count", "20" );
+}
+
 QStringList SinaMicroBlog::timelines() const
 {
-    return QStringList();// << "friends" << "comments";
+    return QStringList();
 }
 
 void SinaMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params )
 {
-    if ( timeline == "friends" ) {
-        apiUrl = "http://api.t.sina.com.cn/statuses/friends_timeline.json";
-        params.insert( "count", "20" );
-    }
-    else if ( timeline == "mentions" ) {
-        apiUrl = "http://api.t.sina.com.cn/statuses/mentions.json";
-        params.insert( "count", "20" );
-    }
-    else if ( timeline == "comments" ) {
+    if ( timeline == "comments" ) {
         apiUrl = "http://api.t.sina.com.cn/statuses/comments_timeline.json";
         params.insert( "count", "20" );
     }
@@ -90,20 +89,17 @@ int SinaMicroBlog::charLimit() const
 
 void SinaMicroBlog::createPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "SinaMicroBlog::createPost";
     apiUrl = "http://api.t.sina.com.cn/statuses/update.json";
     params.insert( "status", QUrl::toPercentEncoding( post.text ) );
 }
 
 void SinaMicroBlog::removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "SinaMicroBlog::removePost";
     apiUrl = QString( "http://api.t.sina.com.cn/statuses/destroy/%1.json" ).arg( post.id );
 }
 
 void SinaMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
 {
-    qWarning() << "SinaMicroBlog::retweetPost";
     apiUrl = "http://api.t.sina.com.cn/statuses/repost.json";
     params.insert( "id", post.id.toUtf8() );
 }

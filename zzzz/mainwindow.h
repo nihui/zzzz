@@ -29,6 +29,7 @@ class MainWindow : public KXmlGuiWindow
 //         void updatePublicTimeline();
 
         void updateTimeline( Zzzz::MicroBlog::Timeline t );
+        void updateUserTimeline( const PostWrapper* post );
         void slotUpdateTimeline( KJob* job );
         void createPost( const PostWrapper* post );
         void slotCreatePost( KJob* job );

@@ -153,6 +153,32 @@ void MainWindow::updateTimeline( Zzzz::MicroBlog::Timeline t )
 
 }
 
+void MainWindow::updateUserTimeline( const PostWrapper* post )
+{
+    Account* account = post->myAccount;
+    if ( !account || !account->isAuthorized() ) {
+        return;
+    }
+
+    Zzzz::MicroBlog* microblog = account->microblog();
+
+    QString apiUrl;
+    Zzzz::MicroBlog::ParamMap params;
+    /// update user timeline using microblog for account
+    microblog->updateUserTimeline( apiUrl, params, post->m_post.user );
+
+    KUrl url( apiUrl );
+    QByteArray hs = account->createParametersString( apiUrl, Zzzz::MicroBlog::GET, params );
+    url.setQuery( hs );
+
+    KIO::StoredTransferJob* job = KIO::storedGet( url, KIO::Reload, KIO::HideProgressInfo );
+    job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
+    connect( job, SIGNAL(result(KJob*)), this, SLOT(slotUpdateTimeline(KJob*)) );
+    m_jobAccount[ job ] = account;
+    m_jobTimeline[ job ] = Zzzz::MicroBlog::User;
+    job->start();
+}
+
 void MainWindow::slotUpdateTimeline( KJob* job )
 {
     if ( job->error() ) {
@@ -308,6 +334,8 @@ void MainWindow::createTimelineWidget( Zzzz::MicroBlog::Timeline t, const QStrin
 {
     TimelineWidget* tw = new TimelineWidget;
     m_timelineWidget[ t ] = tw;
+    connect( tw, SIGNAL(userClicked(const PostWrapper*)),
+             this, SLOT(updateUserTimeline(const PostWrapper*)) );
     connect( tw, SIGNAL(replyClicked(const PostWrapper*)),
              m_composerWidget, SLOT(composeReply(const PostWrapper*)) );
     connect( tw, SIGNAL(retweetClicked(const PostWrapper*)),

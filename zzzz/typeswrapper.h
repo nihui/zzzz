@@ -45,6 +45,7 @@ class PostWrapper : public QObject
     Q_PROPERTY(QString thumbnailPic READ thumbnailPic)
     Q_PROPERTY(QString originalPic READ originalPic)
 
+    Q_PROPERTY(QString userLink READ userLink)
     Q_PROPERTY(QString replyLink READ replyLink)
     Q_PROPERTY(QString retweetLink READ retweetLink)
     public:
@@ -62,12 +63,14 @@ class PostWrapper : public QObject
         QString thumbnailPic() const;
         QString originalPic() const;
 
+        QString userLink() const;
         QString replyLink() const;
         QString retweetLink() const;
     public:
         Zzzz::Post m_post;
         UserWrapper* m_userWrapper;
 
+        mutable QString m_userLink;
         mutable QString m_replyLink;
         mutable QString m_retweetLink;
 
