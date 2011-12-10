@@ -30,6 +30,35 @@
 
 #include <QTimer>
 
+static QString timeline2String( Zzzz::MicroBlog::Timeline t )
+{
+    switch ( t ) {
+        case Zzzz::MicroBlog::Home:
+            return QString( "__HOME__" );
+        case Zzzz::MicroBlog::Public:
+            return QString( "__PUBLIC__" );
+        case Zzzz::MicroBlog::User:
+            return QString( "__USER__" );
+        case Zzzz::MicroBlog::Mentions:
+            return QString( "__MENTIONS__" );
+        default:
+            return QString();
+    }
+}
+
+static Zzzz::MicroBlog::Timeline string2Timeline( const QString& s )
+{
+    if ( s == "__HOME__" )
+        return Zzzz::MicroBlog::Home;
+    if ( s == "__PUBLIC__" )
+        return Zzzz::MicroBlog::Public;
+    if ( s == "__USER__" )
+        return Zzzz::MicroBlog::User;
+    if ( s == "__MENTIONS__" )
+        return Zzzz::MicroBlog::Mentions;
+    return Zzzz::MicroBlog::UserMin;
+}
+
 MainWindow::MainWindow()
 : KXmlGuiWindow()
 {
@@ -41,21 +70,22 @@ MainWindow::MainWindow()
     mainLayout->setMargin( 0 );
     mainLayout->setSpacing( 0 );
     mainWidget->setLayout( mainLayout );
+
     m_buttonsWidget = new NavButtonsWidget;
     mainLayout->addWidget( m_buttonsWidget );
     m_stackedLayout = new QStackedLayout;
     m_stackedLayout->setMargin( 0 );
     m_stackedLayout->setSpacing( 0 );
     mainLayout->addLayout( m_stackedLayout );
+
     m_composerWidget = new ComposerWidget;
     mainLayout->addWidget( m_composerWidget );
     connect( m_composerWidget, SIGNAL(postComposed(const PostWrapper*)),
              this, SLOT(createPost(const PostWrapper*)) );
 
-    createTimelineWidget( Zzzz::MicroBlog::Home, "user-home" );
-    createTimelineWidget( Zzzz::MicroBlog::Public, "applications-internet" );
-    createTimelineWidget( Zzzz::MicroBlog::User, "user-identity" );
-    createTimelineWidget( Zzzz::MicroBlog::Mentions, "face-angel" );
+    createTimelineWidget( "__HOME__", "user-home" );
+    createTimelineWidget( "__PUBLIC__", "applications-internet" );
+    createTimelineWidget( "__MENTIONS__", "face-angel" );
 
     connect( m_buttonsWidget, SIGNAL(currentIndexChanged(int)),
              m_stackedLayout, SLOT(setCurrentIndex(int)) );
@@ -82,19 +112,9 @@ void MainWindow::slotConfigure()
 
 void MainWindow::updateTimelines()
 {
-    updateTimeline( Zzzz::MicroBlog::Home );
-    updateTimeline( Zzzz::MicroBlog::Public );
-//     updateTimeline( Zzzz::MicroBlog::User );
-    updateTimeline( Zzzz::MicroBlog::Mentions );
-//     QList<Zzzz::TimelineType> timelines;
-//     timelines << Zzzz::Home << Zzzz::Public;
-// 
-//     QList<Zzzz::TimelineType>::ConstIterator timelineit = timelines.constBegin();
-//     QList<Zzzz::TimelineType>::ConstIterator timelineend = timelines.constEnd();
-//     while ( timelineit != timelineend ) {
-//         Zzzz::TimelineType timeline = *timelineit;
-//         updateTimeline( timeline );
-//     }
+    updateTimeline( "__HOME__" );
+    updateTimeline( "__PUBLIC__" );
+    updateTimeline( "__MENTIONS__" );
 
         /// update custom timelines
         /*
@@ -118,10 +138,10 @@ void MainWindow::updateTimelines()
         */
 }
 
-void MainWindow::updateTimeline( Zzzz::MicroBlog::Timeline t )
+void MainWindow::updateTimeline( const QString& timelineName )
 {
-    TimelineWidget* tw = m_timelineWidget.value( t );
-    tw->clearPosts();
+//     TimelineWidget* tw = m_timelineWidget.value( t );
+//     tw->clearPosts();
 
     QList<Account*> accounts = AccountManager::self()->accounts();
     QList<Account*>::ConstIterator it = accounts.constBegin();
@@ -137,7 +157,7 @@ void MainWindow::updateTimeline( Zzzz::MicroBlog::Timeline t )
         QString apiUrl;
         Zzzz::MicroBlog::ParamMap params;
         /// update timeline using microblog for account
-        microblog->updateTimeline( t, apiUrl, params );
+        microblog->updateTimeline( string2Timeline( timelineName ), apiUrl, params );
 
         KUrl url( apiUrl );
         QByteArray hs = account->createParametersString( apiUrl, Zzzz::MicroBlog::GET, params );
@@ -147,7 +167,7 @@ void MainWindow::updateTimeline( Zzzz::MicroBlog::Timeline t )
         job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
         connect( job, SIGNAL(result(KJob*)), this, SLOT(slotUpdateTimeline(KJob*)) );
         m_jobAccount[ job ] = account;
-        m_jobTimeline[ job ] = t;
+        m_jobTimeline[ job ] = timelineName + " zzzz";
         job->start();
     }
 
@@ -175,7 +195,7 @@ void MainWindow::updateUserTimeline( const PostWrapper* post )
     job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
     connect( job, SIGNAL(result(KJob*)), this, SLOT(slotUpdateTimeline(KJob*)) );
     m_jobAccount[ job ] = account;
-    m_jobTimeline[ job ] = Zzzz::MicroBlog::User;
+    m_jobTimeline[ job ] = post->m_post.user.screenName + ' ' + post->m_post.user.profileImageUrl;
     job->start();
 }
 
@@ -187,7 +207,9 @@ void MainWindow::slotUpdateTimeline( KJob* job )
     }
 
     Account* account = m_jobAccount.take( job );
-    Zzzz::MicroBlog::Timeline timeline = m_jobTimeline.take( job );
+    QString t = m_jobTimeline.take( job );
+    QString timeline = t.split( ' ' ).at( 0 );
+    QString iconName = t.split( ' ' ).at( 1 );
     KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
 //     qWarning() << QString::fromUtf8( j->data() );
     Zzzz::MicroBlog* microblog = account->microblog();
@@ -200,6 +222,14 @@ void MainWindow::slotUpdateTimeline( KJob* job )
     }
 
     TimelineWidget* tw = m_timelineWidget.value( timeline );
+    if ( !tw ) {
+        /// create user timeline
+        qWarning() << "create timeline widget" << timeline << iconName;
+        createTimelineWidget( timeline, iconName );
+        tw = m_timelineWidget.value( timeline );
+    }
+    tw->clearPosts();
+
     QList<Zzzz::Post>::ConstIterator it = postlist.constBegin();
     QList<Zzzz::Post>::ConstIterator end = postlist.constEnd();
     while ( it != end ) {
@@ -292,7 +322,7 @@ void MainWindow::slotCreatePost( KJob* job )
     post->myAccount = account;
     /// update widget
     qWarning() << "created new post";
-    TimelineWidget* tw = m_timelineWidget.value( Zzzz::MicroBlog::Home );
+    TimelineWidget* tw = m_timelineWidget.value( "__HOME__" );
     tw->prependPost( post );
     tw->updateHTML();
 }
@@ -330,16 +360,17 @@ void MainWindow::setupActions()
     connect( actUpdate, SIGNAL(triggered(bool)), this, SLOT(updateTimelines()) );
 }
 
-void MainWindow::createTimelineWidget( Zzzz::MicroBlog::Timeline t, const QString& iconName )
+void MainWindow::createTimelineWidget( const QString& timelineName, const QString& iconName )
 {
     TimelineWidget* tw = new TimelineWidget;
-    m_timelineWidget[ t ] = tw;
+    m_timelineWidget[ timelineName ] = tw;
     connect( tw, SIGNAL(userClicked(const PostWrapper*)),
              this, SLOT(updateUserTimeline(const PostWrapper*)) );
     connect( tw, SIGNAL(replyClicked(const PostWrapper*)),
              m_composerWidget, SLOT(composeReply(const PostWrapper*)) );
     connect( tw, SIGNAL(retweetClicked(const PostWrapper*)),
              this, SLOT(retweetPost(const PostWrapper*)) );
+
     m_stackedLayout->addWidget( tw );
-    m_buttonsWidget->addButton( iconName );
+    m_buttonsWidget->addButton( timelineName, iconName );
 }

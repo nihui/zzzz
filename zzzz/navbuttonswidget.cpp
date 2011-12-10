@@ -4,7 +4,10 @@
 #include <types.h>
 
 #include <KAction>
+#include <KDebug>
 #include <KIcon>
+#include <KIO/Job>
+#include <KIO/StoredTransferJob>
 #include <KLocale>
 #include <KMenu>
 #include <KPushButton>
@@ -38,15 +41,30 @@ NavButtonsWidget::~NavButtonsWidget()
 {
 }
 
-void NavButtonsWidget::addButton( const QString& iconName )
+void NavButtonsWidget::addButton( const QString& timelineName, const QString& iconName )
 {
     KPushButton* button = new KPushButton;
-    button->setIcon( KIcon( iconName ) );
     button->setIconSize( QSize( 32, 32 ) );
     button->setCheckable( true );
     button->setFlat( true );
-    m_buttonGroup->addButton( button, m_buttonCount++ );
+    m_buttonGroup->addButton( button, m_buttonCount );
     layout()->addWidget( button );
+
+    m_navButton[ timelineName ] = button;
+
+    m_buttonCount++;
+
+    if ( iconName.startsWith( "http://" ) ) {
+        /// load icon from remote url
+//         qWarning() << "load icon from remote url" << iconName;
+        KIO::StoredTransferJob* job = KIO::storedGet( KUrl( iconName ), KIO::Reload, KIO::HideProgressInfo );
+        connect( job, SIGNAL(result(KJob*)), this, SLOT(slotLoadIcon(KJob*)) );
+        m_jobIcon[ job ] = timelineName;
+        job->start();
+    }
+    else {
+        button->setIcon( KIcon( iconName ) );
+    }
 }
 
 void NavButtonsWidget::contextMenuEvent( QContextMenuEvent* event )
@@ -77,6 +95,23 @@ void NavButtonsWidget::wheelEvent( QWheelEvent* event )
     buttonToClick->setFocus();
 
     event->accept();
+}
+
+void NavButtonsWidget::slotLoadIcon( KJob* job )
+{
+    if ( job->error() ) {
+        qWarning() << "Job Error: " << job->errorString();
+        return;
+    }
+
+    QString timelineName = m_jobIcon.take( job );
+    KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
+
+    KPushButton* button = m_navButton[ timelineName ];
+
+    QPixmap pix;
+    pix.loadFromData( j->data() );
+    button->setIcon( KIcon( pix ) );
 }
 
 void NavButtonsWidget::slotArrangeItem()
