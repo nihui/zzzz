@@ -2,7 +2,6 @@
 #define TIMELINEWIDGET_H
 
 #include <QWidget>
-#include <grantlee_core.h>
 
 class QUrl;
 class KUrl;
@@ -36,8 +35,6 @@ class TimelineWidget : public QWidget
         QString m_html;
         KHTMLPart* m_khtmlpart;
         ZzzzWebView* m_kwebview;
-
-        Grantlee::Engine* m_engine;
 };
 
 #endif // TIMELINEWIDGET_H

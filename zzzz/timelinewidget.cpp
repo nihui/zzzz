@@ -1,5 +1,6 @@
 #include "timelinewidget.h"
 
+#include "themeengine.h"
 #include "typeswrapper.h"
 
 #include <types.h>
@@ -20,8 +21,6 @@
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 #include <QWebSettings>
-
-#include <grantlee_core.h>
 
 class ZzzzWebView : public KWebView
 {
@@ -63,16 +62,6 @@ TimelineWidget::TimelineWidget( QWidget* parent )
 
     mainLayout->addWidget( m_kwebview );
 //     mainLayout->addWidget( m_khtmlpart->view() );
-
-    m_engine = new Grantlee::Engine( this );
-    Grantlee::FileSystemTemplateLoader::Ptr loader( new Grantlee::FileSystemTemplateLoader() );
-
-    KStandardDirs ksd;
-    QStringList templateDirs = ksd.findDirs( "data", "zzzz/themes" );
-kWarning() << templateDirs;
-    loader->setTemplateDirs( templateDirs );
-    m_engine->addTemplateLoader( loader );
-//     m_engine->setPluginPaths( QStringList() << GRANTLEE_PLUGIN_PATH );
 }
 
 TimelineWidget::~TimelineWidget()
@@ -99,7 +88,6 @@ void TimelineWidget::clearPosts()
 void TimelineWidget::updateHTML()
 {
 // kWarning();
-    QVariantHash mapping;
     QVariantList postList;
 
     QList<const PostWrapper*>::ConstIterator it = m_posts.constBegin();
@@ -120,12 +108,7 @@ void TimelineWidget::updateHTML()
 //         kWarning() << p.user.profileImageUrl;
     }
 
-    mapping.insert( "posts", postList );
-
-    Grantlee::Context c( mapping );
-    Grantlee::Template t = m_engine->loadByName( "simple.html" );
-
-    m_html = t->render( &c );
+    m_html = ThemeEngine::self()->render( postList );
 
     m_kwebview->setHtml( m_html );
 
