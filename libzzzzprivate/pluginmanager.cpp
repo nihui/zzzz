@@ -2,6 +2,8 @@
 
 #include "microblog.h"
 
+#include "accountmanager.h"
+
 #include <KDebug>
 #include <KPluginFactory>
 #include <KPluginInfo>
@@ -19,7 +21,7 @@ PluginManager* PluginManager::self()
 
 PluginManager::PluginManager()
 {
-    loadMicroBlogPlugin();
+//     loadMicroBlogPlugin();
 }
 
 PluginManager::~PluginManager()
@@ -39,6 +41,13 @@ void PluginManager::loadMicroBlogPlugin()
         pluginInfo.load( plugins );
         if ( !pluginInfo.isPluginEnabled() ) {
             qWarning() << "plugin " << service->library() << " already disabled.";
+            m_microblogPluginInfos.insert( service->library(), pluginInfo );
+            delete m_microblogs.take( service->library() );
+            continue;
+        }
+
+        if ( m_microblogs.contains( service->library() ) ) {
+            qWarning() << "already loaded " << service->library();
             continue;
         }
 
@@ -58,6 +67,9 @@ void PluginManager::loadMicroBlogPlugin()
         m_microblogPluginInfos.insert( service->library(), pluginInfo );
         m_microblogs.insert( service->library(), plugin );
     }
+
+    // refresh account for microBlog plugin changes
+    AccountManager::self()->loadAccounts();
 }
 
 QString PluginManager::microBlogPluginName( Zzzz::MicroBlog* microblog ) const

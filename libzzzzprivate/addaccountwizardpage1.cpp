@@ -26,6 +26,11 @@ AddAccountWizardPage1::AddAccountWizardPage1( QWidget* parent )
     while ( it != end ) {
         KPluginInfo microBlogPluginInfo = *it;
         ++it;
+
+        if ( !microBlogPluginInfo.isPluginEnabled() ) {
+            continue;
+        }
+
         QTreeWidgetItem* microBlogPluginItem = new QTreeWidgetItem;
         microBlogPluginItem->setIcon( 0, QIcon::fromTheme( microBlogPluginInfo.icon() ) );
         microBlogPluginItem->setText( 0, microBlogPluginInfo.name() );

@@ -18,7 +18,7 @@ AccountManager* AccountManager::self()
 
 AccountManager::AccountManager()
 {
-    loadAccounts();
+//     loadAccounts();
 }
 
 AccountManager::~AccountManager()
@@ -38,6 +38,9 @@ QList<Account*> AccountManager::accounts() const
 void AccountManager::loadAccounts()
 {
     qWarning() << "AccountManager::loadAccounts";
+
+    m_accounts.clear();
+
     KSharedConfig::Ptr conf = KGlobal::config();
     const QStringList accountGroups = conf->groupList().filter( QRegExp( "^Account_" ) );
     QStringList::ConstIterator it = accountGroups.constBegin();
@@ -68,6 +71,8 @@ void AccountManager::loadAccounts()
         account->readConfig();
         m_accounts.insert( alias, account );
     }
+
+    emit accountChanged();
 }
 
 void AccountManager::saveAccounts()

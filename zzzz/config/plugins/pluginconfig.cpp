@@ -1,5 +1,8 @@
 #include "pluginconfig.h"
 
+#include <pluginmanager.h>
+
+#include <KDebug>
 #include <KPluginFactory>
 #include <KPluginInfo>
 #include <KPluginLoader>
@@ -24,8 +27,7 @@ ZzzzPluginConfig::ZzzzPluginConfig( QWidget* parent, const QVariantList& args )
 //     connect( m_pluginSelector, SIGNAL(configCommitted(const QByteArray&) ),
 //              this, SLOT(reparseConfiguration(const QByteArray&)) );
 
-    KService::List offers = KServiceTypeTrader::self()->query( "Zzzz/MicroBlog" );
-    m_pluginSelector->addPlugins( KPluginInfo::fromServices( offers ),
+    m_pluginSelector->addPlugins( PluginManager::self()->microBlogPluginInfos(),
                                   KPluginSelector::ReadConfigFile, i18n( "MicroBlog" ),
                                   "MicroBlog", KGlobal::config() );
 
@@ -44,10 +46,10 @@ void ZzzzPluginConfig::load()
 void ZzzzPluginConfig::save()
 {
     m_pluginSelector->save();
+    PluginManager::self()->loadMicroBlogPlugin();
 }
 
 void ZzzzPluginConfig::defaults()
 {
     m_pluginSelector->defaults();
 }
-

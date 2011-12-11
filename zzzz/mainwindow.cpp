@@ -6,6 +6,7 @@
 
 #include <account.h>
 #include <accountmanager.h>
+#include <pluginmanager.h>
 
 #include <microblog.h>
 #include <types.h>
@@ -95,6 +96,7 @@ MainWindow::MainWindow()
     setupGUI();
 
     /// lazy initialization
+    PluginManager::self()->loadMicroBlogPlugin();
 //     QTimer::singleShot( 0, this, SLOT(loadMicroBlogPlugins()) );
 }
 
