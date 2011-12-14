@@ -1,5 +1,4 @@
 #include "navbuttonswidget.h"
-#include "navarranger.h"
 
 #include <types.h>
 
@@ -21,17 +20,16 @@
 NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 : QWidget(parent)
 {
-    QHBoxLayout* buttonLayout = new QHBoxLayout;
-    buttonLayout->setMargin( 0 );
-    buttonLayout->setSpacing( 0 );
-    setLayout( buttonLayout );
+    m_buttonLayout = new QHBoxLayout;
+    m_buttonLayout->setMargin( 0 );
+    m_buttonLayout->setSpacing( 0 );
+    setLayout( m_buttonLayout );
 
-    m_buttonCount = 0;
     m_buttonGroup = new QButtonGroup( this );
     m_buttonGroup->setExclusive( true );
 
     connect( m_buttonGroup, SIGNAL(buttonClicked(int)),
-             this, SIGNAL(currentIndexChanged(int)) );
+             this, SLOT(slotButtonClicked(int)) );
 
 //     /// check home button by default
 //     m_buttonGroup->button( 0 )->click();
@@ -41,18 +39,60 @@ NavButtonsWidget::~NavButtonsWidget()
 {
 }
 
+bool NavButtonsWidget::eventFilter( QObject* watched, QEvent* event )
+{
+    KPushButton* button = qobject_cast<KPushButton*>(watched);
+    if ( button ) {
+        if ( event->type() == QEvent::MouseButtonPress ) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            button->click();
+            m_buttonStart = button->pos();
+            m_dragStart = mouseEvent->globalPos();
+            return true;
+        }
+        if ( event->type() == QEvent::MouseMove ) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            int deltaX = mouseEvent->globalPos().x() - m_dragStart.x();
+            button->move( m_buttonStart.x() + deltaX, m_buttonStart.y() );
+            return true;
+        }
+        if ( event->type() == QEvent::MouseButtonRelease ) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            int deltaX = mouseEvent->globalPos().x() - m_dragStart.x();
+            int deltaStep = deltaX / button->width();
+            if (deltaStep == 0) {
+                // restore original position
+                button->move( m_buttonStart );
+            }
+            else {
+                int originalLayoutIndex = m_buttonLayout->indexOf( button );
+                m_buttonLayout->removeWidget( button );
+                m_buttonLayout->insertWidget( originalLayoutIndex + deltaStep, button );
+            }
+            return true;
+        }
+    }
+    return QObject::eventFilter( watched, event );
+}
+
 void NavButtonsWidget::addButton( const QString& timelineName, const QString& iconName )
 {
     KPushButton* button = new KPushButton;
     button->setIconSize( QSize( 32, 32 ) );
     button->setCheckable( true );
     button->setFlat( true );
-    m_buttonGroup->addButton( button, m_buttonCount );
-    layout()->addWidget( button );
+    button->setFocusPolicy( Qt::NoFocus );
+
+    button->installEventFilter( this );
+
+    m_buttonGroup->addButton( button );
+
+    m_buttonLayout->addWidget( button );
+
+    int id = m_buttonGroup->id( button );
+    m_buttonIdTimeline[ id ] = timelineName;
 
     m_navButton[ timelineName ] = button;
-
-    m_buttonCount++;
 
     if ( iconName.startsWith( "http://" ) ) {
         /// load icon from remote url
@@ -67,34 +107,29 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
     }
 }
 
-void NavButtonsWidget::contextMenuEvent( QContextMenuEvent* event )
-{
-    if ( event->reason() != QContextMenuEvent::Mouse )
-        return;
-
-    KMenu* menu = new KMenu;
-    KAction* action = new KAction( this );
-    action->setText( i18n( "Arrange item" ) );
-    connect( action, SIGNAL(triggered(bool)), this, SLOT(slotArrangeItem()) );
-    menu->addAction( action );
-    menu->exec( event->globalPos() );
-    delete menu;
-}
-
 void NavButtonsWidget::wheelEvent( QWheelEvent* event )
 {
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
-    int checkedId = m_buttonGroup->checkedId();
-    int toClickId = ( checkedId - numSteps ) % m_buttonCount;
-    if ( toClickId < 0 )
-        toClickId += m_buttonCount;
-    QAbstractButton* buttonToClick = m_buttonGroup->button( toClickId );
+    QAbstractButton* currentButton = m_buttonGroup->checkedButton();
+    int currentIndex = layout()->indexOf( currentButton );
+
+    int buttonCount = layout()->count();
+
+    int toClickIndex = ( currentIndex - numSteps ) % buttonCount;
+    if ( toClickIndex < 0 )
+        toClickIndex += buttonCount;
+
+    KPushButton* buttonToClick = static_cast<KPushButton*>(layout()->itemAt( toClickIndex )->widget());
     buttonToClick->click();
-    buttonToClick->setFocus();
 
     event->accept();
+}
+
+void NavButtonsWidget::slotButtonClicked( int id )
+{
+    emit timelineClicked( m_buttonIdTimeline[ id ] );
 }
 
 void NavButtonsWidget::slotLoadIcon( KJob* job )
@@ -113,11 +148,3 @@ void NavButtonsWidget::slotLoadIcon( KJob* job )
     pix.loadFromData( j->data() );
     button->setIcon( KIcon( pix ) );
 }
-
-void NavButtonsWidget::slotArrangeItem()
-{
-    NavArranger* arranger = new NavArranger;
-    arranger->exec();
-    delete arranger;
-}
-

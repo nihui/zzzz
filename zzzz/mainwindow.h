@@ -25,6 +25,7 @@ class MainWindow : public KXmlGuiWindow
         virtual ~MainWindow();
 
     private Q_SLOTS:
+        void setCurrentTimeline( const QString& timelineName );
         void slotConfigure();
         void updateTimelines();
 

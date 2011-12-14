@@ -88,8 +88,8 @@ MainWindow::MainWindow()
     createTimelineWidget( "__PUBLIC__", "applications-internet" );
     createTimelineWidget( "__MENTIONS__", "face-angel" );
 
-    connect( m_buttonsWidget, SIGNAL(currentIndexChanged(int)),
-             m_stackedLayout, SLOT(setCurrentIndex(int)) );
+    connect( m_buttonsWidget, SIGNAL(timelineClicked(const QString&)),
+             this, SLOT(setCurrentTimeline(const QString&)) );
 
     setupActions();
 
@@ -103,6 +103,11 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
     delete m_settingsDialog;
+}
+
+void MainWindow::setCurrentTimeline( const QString& timelineName )
+{
+    m_stackedLayout->setCurrentWidget( m_timelineWidget[ timelineName ] );
 }
 
 void MainWindow::slotConfigure()

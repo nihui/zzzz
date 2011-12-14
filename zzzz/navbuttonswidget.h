@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include <QHash>
+#include <QPoint>
 
 class QButtonGroup;
+class QHBoxLayout;
 
 class KPushButton;
 class KJob;
@@ -15,20 +17,26 @@ class NavButtonsWidget : public QWidget
     public:
         explicit NavButtonsWidget( QWidget* parent = 0 );
         virtual ~NavButtonsWidget();
+        virtual bool eventFilter( QObject* watched, QEvent* event );
         void addButton( const QString& timelineName, const QString& iconName );
+
     Q_SIGNALS:
-        void currentIndexChanged( int index );
+        void timelineClicked( const QString& timelineName );
     protected:
-        virtual void contextMenuEvent( QContextMenuEvent* event );
         virtual void wheelEvent( QWheelEvent* event );
     private Q_SLOTS:
+        void slotButtonClicked( int id );
         void slotLoadIcon( KJob* job );
-        void slotArrangeItem();
     private:
-        int m_buttonCount;
+        QHBoxLayout* m_buttonLayout;
         QButtonGroup* m_buttonGroup;
 
+        QHash<int, QString> m_buttonIdTimeline;
+
         QHash<QString, KPushButton*> m_navButton;
+
+        QPoint m_buttonStart;
+        QPoint m_dragStart;
 
         QHash<KJob*, QString> m_jobIcon;
 };

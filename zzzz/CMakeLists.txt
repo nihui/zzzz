@@ -4,7 +4,6 @@ set(zzzz_SRCS
     zzzzapp.cpp
     main.cpp
     mainwindow.cpp
-    navarranger.cpp
     navbuttonswidget.cpp
     themeengine.cpp
     timelinewidget.cpp
