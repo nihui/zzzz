@@ -4,9 +4,8 @@
 #include <QWidget>
 
 class QUrl;
-class KUrl;
-class KHTMLPart;
-class ZzzzWebView;
+class QTextBrowser;
+class QTimer;
 class PostWrapper;
 
 class TimelineWidget : public QWidget
@@ -25,16 +24,19 @@ class TimelineWidget : public QWidget
         void replyClicked( const PostWrapper* post );
         void retweetClicked( const PostWrapper* post );
     private Q_SLOTS:
-        void slotLinkClicked( const QUrl& url );
-        void slotOpenUrlRequestDelayed( const KUrl& url );
+        void refresh();
+        void slotGotMedia( const QString& url, const QImage& image );
+        void slotErrorMedia( const QString& url );
+        void slotAnchorClicked( const QUrl& url );
     private:
+        void delayedRefresh();
         void handleUrlString( const QString& url );
     private:
         QList<const PostWrapper*> m_posts;
 
         QString m_html;
-        KHTMLPart* m_khtmlpart;
-        ZzzzWebView* m_kwebview;
+        QTextBrowser* m_textbrowser;
+        QTimer* m_timer;
 };
 
 #endif // TIMELINEWIDGET_H

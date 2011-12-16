@@ -5,7 +5,9 @@
             <img src="{{ post.user.profileImageUrl }}" width="48" height="48" />
         </td>
         <td style="word-break:break-all">
+            {% if post.thumbnailPic %}
             <a href="{{ post.originalPic }}"><img align="right" src="{{ post.thumbnailPic }}" /></a>
+            {% endif %}
             <a href="{{ post.userLink }}">{{ post.user.screenName }}</a>
             {{ post.text }}
             <a href="{{ post.replyLink }}">reply</a>

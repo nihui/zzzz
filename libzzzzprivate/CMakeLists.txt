@@ -5,7 +5,7 @@ set(libzzzzprivate_SRCS
     addaccountwizard.cpp
     addaccountwizardpage1.cpp
     addaccountwizardpage2.cpp
-#     avatarmanager.cpp
+    mediafetcher.cpp
     pluginmanager.cpp
 )
 

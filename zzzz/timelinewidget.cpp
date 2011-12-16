@@ -3,13 +3,11 @@
 #include "themeengine.h"
 #include "typeswrapper.h"
 
+#include "mediafetcher.h"
+
 #include <types.h>
 
-#include <khtmlview.h>
-#include <khtml_part.h>
-#include <khtml_settings.h>
-#include <kwebview.h>
-
+#include <KIcon>
 #include <KStandardDirs>
 #include <KToolInvocation>
 
@@ -17,19 +15,12 @@
 
 #include <QLineEdit>
 #include <QResizeEvent>
+#include <QSet>
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QTextBrowser>
+#include <QTimer>
 #include <QVBoxLayout>
-#include <QWebSettings>
-
-class ZzzzWebView : public KWebView
-{
-    public:
-        explicit ZzzzWebView( QWidget* parent = 0 ) : KWebView(parent) {}
-        virtual QSize sizeHint() const {
-            return QSize( 200, 200 );
-        }
-};
 
 TimelineWidget::TimelineWidget( QWidget* parent )
 : QWidget(parent)
@@ -40,28 +31,24 @@ TimelineWidget::TimelineWidget( QWidget* parent )
     mainLayout->setMargin( 0 );
     setLayout( mainLayout );
 
-    m_kwebview = new ZzzzWebView;
-    m_kwebview->settings()->setAttribute( QWebSettings::JavascriptEnabled, false );
-    m_kwebview->settings()->setAttribute( QWebSettings::JavaEnabled, false );
-    m_kwebview->settings()->setAttribute( QWebSettings::PluginsEnabled, false );
-    m_kwebview->setHtml( m_html );
-    m_kwebview->page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
-    connect( m_kwebview, SIGNAL(linkClicked(const QUrl&)), this, SLOT(slotLinkClicked(const QUrl&)) );
+    m_timer = new QTimer( this );
+    m_timer->setSingleShot( true );
+    connect( m_timer, SIGNAL(timeout()), this, SLOT(refresh()) );
 
-    m_khtmlpart = new KHTMLPart;
-    m_khtmlpart->setJavaEnabled( false );
-    m_khtmlpart->setJScriptEnabled( false );
-    m_khtmlpart->setPluginsEnabled( false );
-    m_khtmlpart->view()->setMarginHeight( 0 );
-    m_khtmlpart->view()->setMarginWidth( 0 );
-    m_khtmlpart->begin();
-    m_khtmlpart->write( m_html );
-    m_khtmlpart->end();
-    connect( m_khtmlpart->browserExtension(), SIGNAL(openUrlRequestDelayed(const KUrl&,const KParts::OpenUrlArguments&,const KParts::BrowserArguments&)),
-             this, SLOT(slotOpenUrlRequestDelayed(const KUrl&)) );
+    m_textbrowser = new QTextBrowser;
+    m_textbrowser->setOpenLinks( false );
+    m_textbrowser->setUndoRedoEnabled( false );
+//     m_textbrowser->setDocumentMargin( 0 );
+    m_textbrowser->setHtml( m_html );
+    connect( m_textbrowser, SIGNAL(anchorClicked(const QUrl&)),
+             this, SLOT(slotAnchorClicked(const QUrl&)) );
 
-    mainLayout->addWidget( m_kwebview );
-//     mainLayout->addWidget( m_khtmlpart->view() );
+    mainLayout->addWidget( m_textbrowser );
+
+    connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
+             this, SLOT(slotGotMedia(const QString&, const QImage&)) );
+    connect( MediaFetcher::self(), SIGNAL(gotImage(const QString&, const QImage&)),
+             this, SLOT(slotGotMedia(const QString&, const QImage&)) );
 }
 
 TimelineWidget::~TimelineWidget()
@@ -88,6 +75,10 @@ void TimelineWidget::clearPosts()
 void TimelineWidget::updateHTML()
 {
 // kWarning();
+
+    QSet<QString> avatarUrls;
+    QSet<QString> imageUrls;
+
     QVariantList postList;
 
     QList<const PostWrapper*>::ConstIterator it = m_posts.constBegin();
@@ -95,6 +86,9 @@ void TimelineWidget::updateHTML()
     int i = 0;
     while ( it != end ) {
         const PostWrapper* post = *it;
+
+        avatarUrls.insert( post->m_post.user.profileImageUrl );
+        imageUrls.insert( post->m_post.thumbnailPic );
 
         post->m_userLink = QString( "zzzz:user:%1" ).arg( i );
         post->m_replyLink = QString( "zzzz:reply:%1" ).arg( i );
@@ -108,23 +102,52 @@ void TimelineWidget::updateHTML()
 //         kWarning() << p.user.profileImageUrl;
     }
 
+    QImage none = KIcon("image-missing").pixmap( 48 ).toImage();
+    foreach (const QString& url, avatarUrls) {
+        m_textbrowser->document()->addResource( QTextDocument::ImageResource, url, none );
+    }
+    foreach (const QString& url, imageUrls) {
+        m_textbrowser->document()->addResource( QTextDocument::ImageResource, url, none );
+    }
+
     m_html = ThemeEngine::self()->render( postList );
 
-    m_kwebview->setHtml( m_html );
+    m_textbrowser->setHtml( m_html );
 
-    m_khtmlpart->begin();
-    m_khtmlpart->write( m_html );
-    m_khtmlpart->end();
+    foreach (const QString& url, avatarUrls) {
+        MediaFetcher::self()->requestAvatar( url );
+    }
+    foreach (const QString& url, imageUrls) {
+        MediaFetcher::self()->requestImage( url );
+    }
 }
 
-void TimelineWidget::slotLinkClicked( const QUrl& url )
+void TimelineWidget::refresh()
+{
+    m_textbrowser->setHtml( m_html );
+}
+
+void TimelineWidget::slotGotMedia( const QString& url, const QImage& image )
+{
+    m_textbrowser->document()->addResource( QTextDocument::ImageResource, url, image );
+    delayedRefresh();
+}
+
+void TimelineWidget::slotErrorMedia( const QString& url )
+{
+    QImage none = KIcon("image-missing").pixmap( 48 ).toImage();
+    m_textbrowser->document()->addResource( QTextDocument::ImageResource, url, none );
+    delayedRefresh();
+}
+
+void TimelineWidget::slotAnchorClicked( const QUrl& url )
 {
     handleUrlString( url.toString() );
 }
 
-void TimelineWidget::slotOpenUrlRequestDelayed( const KUrl& url )
+void TimelineWidget::delayedRefresh()
 {
-    handleUrlString( url.url() );
+    m_timer->start( 200 );
 }
 
 void TimelineWidget::handleUrlString( const QString& url )
