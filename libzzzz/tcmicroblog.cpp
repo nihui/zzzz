@@ -104,6 +104,7 @@ void TwitterCompatibleAPIMicroBlog::readPostFromJsonMap( const QVariantMap& varm
     QVariantMap usermap = varmap["user"].toMap();
     readUserFromJsonMap( usermap, post.user );
     post.text = varmap["text"].toString();
+    Utility::urlize( post.text );
     post.creationDateTime = Utility::string2datetime( varmap["created_at"].toString() );
     post.replyToStatusId = varmap["in_reply_to_status_id"].toString();
     post.replyToUserId = varmap["in_reply_to_user_id"].toString();
