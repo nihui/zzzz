@@ -2,8 +2,6 @@
 
 #include <types.h>
 
-#include <QtCrypto>
-
 #include <QDebug>
 #include <QUrl>
 
@@ -155,13 +153,16 @@ void TencentMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Pos
     post.id = varmap["id"].toString();
     post.source = varmap["from"].toString();
     post.text = varmap["text"].toString();
-    post.creationDateTime = varmap["timestamp"].toString();
+    post.creationDateTime = varmap["timestamp"].toUInt();
 
     post.user.name = varmap["name"].toString();
     post.user.location = varmap["location"].toString();
     post.user.id = varmap["uid"].toString();
     post.user.screenName = varmap["nick"].toString();
-    post.user.profileImageUrl = QUrl::fromPercentEncoding( varmap["head"].toString().toUtf8() ) + "/50";
+    QString profileImageUrlBase = QUrl::fromPercentEncoding( varmap["head"].toString().toUtf8() );
+    if ( !profileImageUrlBase.isEmpty() ) {
+        post.user.profileImageUrl = profileImageUrlBase + "/50";
+    }
 
     QVariantList imageList = varmap["image"].toList();
     if ( !imageList.isEmpty() ) {

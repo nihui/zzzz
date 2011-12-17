@@ -3,6 +3,7 @@
 #include <types.h>
 #include <utility.h>
 
+#include <QDateTime>
 #include <QDebug>
 #include <QUrl>
 
@@ -127,7 +128,7 @@ void NeteaseMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Pos
     readUserFromJsonMap( usermap, post.user );
     post.text = varmap["text"].toString();
     Zzzz::Utility::urlize( post.text );
-    post.creationDateTime = varmap["created_at"].toString();
+    post.creationDateTime = Zzzz::Utility::string2datetime( varmap["created_at"].toString() );
     post.replyToStatusId = varmap["in_reply_to_status_id"].toString();
     post.replyToUserId = varmap["in_reply_to_user_id"].toString();
     post.replyToUserName = varmap["in_reply_to_user_name"].toString();

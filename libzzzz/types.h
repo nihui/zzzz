@@ -27,7 +27,7 @@ class Post
         QString text;
         User user;
         QString source;
-        QString creationDateTime;
+        uint creationDateTime;
         QString replyToStatusId;
         QString replyToUserId;
         QString replyToUserName;

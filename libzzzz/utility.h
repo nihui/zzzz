@@ -11,6 +11,7 @@ namespace Utility
 {
     /// add html tag around link and mail address
     ZZZZ_EXPORT void urlize( QString& text );
+    ZZZZ_EXPORT uint string2datetime( const QString& text );
 }
 
 }

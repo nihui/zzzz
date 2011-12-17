@@ -1,5 +1,7 @@
 #include "typeswrapper.h"
 
+#include <QDateTime>
+
 UserWrapper::UserWrapper( const Zzzz::User& user ) : m_user(user) {}
 QString UserWrapper::id() const { return m_user.id; }
 QString UserWrapper::name() const { return m_user.name; }
@@ -16,7 +18,7 @@ QString PostWrapper::id() const { return m_post.id; }
 QString PostWrapper::text() const { return m_post.text; }
 QObject* PostWrapper::user() const { return m_userWrapper; }
 QString PostWrapper::source() const { return m_post.source; }
-QString PostWrapper::creationDateTime() const { return m_post.creationDateTime; }
+QString PostWrapper::creationDateTime() const { return QDateTime::fromTime_t( m_post.creationDateTime ).toString(); }
 QString PostWrapper::replyToStatusId() const { return m_post.replyToStatusId; }
 QString PostWrapper::replyToUserId() const { return m_post.replyToUserId; }
 QString PostWrapper::replyToUserName() const { return m_post.replyToUserName; }
