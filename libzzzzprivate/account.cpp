@@ -20,7 +20,6 @@
 Account::Account( Zzzz::MicroBlog* microblog, QObject* parent )
 : QObject(parent), m_microblog(microblog)
 {
-    /// TODO KDE 4.5 Change to use new class
     m_qoauth = new QOAuth::Interface( new KIO::AccessManager( this ), this );
     m_qoauth->setConsumerKey( microblog->oauthConsumerKey() );
     m_qoauth->setConsumerSecret( microblog->oauthConsumerSecret() );

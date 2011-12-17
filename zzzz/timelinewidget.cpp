@@ -3,6 +3,7 @@
 #include "themeengine.h"
 #include "typeswrapper.h"
 
+#include "accountmanager.h"
 #include "mediafetcher.h"
 
 #include <types.h>
@@ -45,6 +46,9 @@ TimelineWidget::TimelineWidget( QWidget* parent )
              this, SLOT(slotAnchorClicked(const QUrl&)) );
 
     mainLayout->addWidget( m_textbrowser );
+
+    connect( AccountManager::self(), SIGNAL(accountRemoved(const Account*)),
+             this, SLOT(slotAccountRemoved(const Account*)) );
 
     connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
              this, SLOT(slotGotMedia(const QString&, const QImage&)) );
@@ -126,6 +130,24 @@ void TimelineWidget::updateHTML()
 void TimelineWidget::refresh()
 {
     m_textbrowser->setHtml( m_html );
+}
+
+void TimelineWidget::slotAccountRemoved( const Account* oldAccount )
+{
+    QList<const PostWrapper*>::Iterator it = m_posts.begin();
+    QList<const PostWrapper*>::Iterator end = m_posts.end();
+    while ( it != end ) {
+        const PostWrapper* post = *it;
+        if ( post->myAccount == oldAccount ) {
+            it = m_posts.erase( it );
+            end = m_posts.end();
+            delete post;
+        }
+        else {
+            ++it;
+        }
+    }
+    updateHTML();
 }
 
 void TimelineWidget::slotGotMedia( const QString& url, const QImage& image )

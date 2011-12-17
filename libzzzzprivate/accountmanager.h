@@ -14,13 +14,14 @@ class ZZZZPRIVATE_EXPORT AccountManager : public QObject
         static AccountManager* self();
         ~AccountManager();
         Account* account( const QString& alias ) const;
-        QList<Account*> accounts() const;
+        const QHash<QString, Account*>& accounts() const;
         void loadAccounts();
         void saveAccounts();
         void addAccount( Account* newAccount );
         void removeAccount( const QString& alias );
     Q_SIGNALS:
-        void accountChanged();
+        void accountAdded( const Account* newAccount );
+        void accountRemoved( const Account* oldAccount );
     private:
         explicit AccountManager();
         static AccountManager* m_self;

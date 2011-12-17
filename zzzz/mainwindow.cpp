@@ -20,6 +20,7 @@
 #include <KActionCollection>
 #include <KSettings/Dialog>
 #include <KStandardAction>
+#include <KStatusNotifierItem>
 
 #include <KDebug>
 
@@ -97,6 +98,15 @@ MainWindow::MainWindow()
 
     setupGUI();
 
+    KStatusNotifierItem* tray = new KStatusNotifierItem( this );
+    tray->setIconByName( "face-angel" );
+    tray->setTitle( i18n( "Zzzz" ) );
+    tray->setToolTipIconByName( "face-angel" );
+    tray->setToolTipTitle( i18n( "Zzzz" ) );
+    tray->setToolTipSubTitle( i18n( "KDE MicroBlog Client" ) );
+    tray->setCategory( KStatusNotifierItem::ApplicationStatus );
+    tray->setStatus( KStatusNotifierItem::Active );
+
     /// lazy initialization
     PluginManager::self()->loadMicroBlogPlugin();
 //     QTimer::singleShot( 0, this, SLOT(loadMicroBlogPlugins()) );
@@ -152,11 +162,11 @@ void MainWindow::updateTimeline( const QString& timelineName )
 //     TimelineWidget* tw = m_timelineWidget.value( t );
 //     tw->clearPosts();
 
-    QList<Account*> accounts = AccountManager::self()->accounts();
-    QList<Account*>::ConstIterator it = accounts.constBegin();
-    QList<Account*>::ConstIterator end = accounts.constEnd();
+    const QHash<QString, Account*>& accounts = AccountManager::self()->accounts();
+    QHash<QString, Account*>::ConstIterator it = accounts.constBegin();
+    QHash<QString, Account*>::ConstIterator end = accounts.constEnd();
     while ( it != end ) {
-        Account* account = *it;
+        Account* account = it.value();
         ++it;
         if ( !account->isAuthorized() )
             continue;
@@ -237,7 +247,6 @@ void MainWindow::slotUpdateTimeline( KJob* job )
         createTimelineWidget( timeline, iconName );
         tw = m_timelineWidget.value( timeline );
     }
-    tw->clearPosts();
 
     QList<Zzzz::Post>::ConstIterator it = postlist.constBegin();
     QList<Zzzz::Post>::ConstIterator end = postlist.constEnd();
@@ -251,7 +260,6 @@ void MainWindow::slotUpdateTimeline( KJob* job )
         ++it;
     }
     tw->updateHTML();
-
 }
 
 void MainWindow::createPost( const PostWrapper* post )
@@ -279,11 +287,11 @@ void MainWindow::createPost( const PostWrapper* post )
     }
     else {
         /// general quicktwit for all accounts
-        QList<Account*> accounts = AccountManager::self()->accounts();
-        QList<Account*>::ConstIterator it = accounts.constBegin();
-        QList<Account*>::ConstIterator end = accounts.constEnd();
+        const QHash<QString, Account*>& accounts = AccountManager::self()->accounts();
+        QHash<QString, Account*>::ConstIterator it = accounts.constBegin();
+        QHash<QString, Account*>::ConstIterator end = accounts.constEnd();
         while ( it != end ) {
-            Account* account = *it;
+            Account* account = it.value();
             ++it;
             if ( !account->isAuthorized() )
                 continue;

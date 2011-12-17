@@ -30,16 +30,14 @@ Account* AccountManager::account( const QString& alias ) const
     return m_accounts.value( alias );
 }
 
-QList<Account*> AccountManager::accounts() const
+const QHash<QString, Account*>& AccountManager::accounts() const
 {
-    return m_accounts.values();
+    return m_accounts;
 }
 
 void AccountManager::loadAccounts()
 {
     qWarning() << "AccountManager::loadAccounts";
-
-    m_accounts.clear();
 
     KSharedConfig::Ptr conf = KGlobal::config();
     const QStringList accountGroups = conf->groupList().filter( QRegExp( "^Account_" ) );
@@ -54,25 +52,38 @@ void AccountManager::loadAccounts()
             qWarning() << "MicroBlog entry empty";
             continue;
         }
+
+        QString alias = configGroup.readEntry( "Alias", QString() );
         KPluginInfo pluginInfo = PluginManager::self()->microBlogPluginInfo( microblogName );
         if ( !pluginInfo.isValid() || !pluginInfo.isPluginEnabled() ) {
             qWarning() << "No such plugininfo for" << microblogName;
+            if ( m_accounts.contains( alias ) ) {
+                /// delete account with disabled microblog plugin
+                Account* oldAccount = m_accounts.take( alias );
+                kWarning() << "emit accountRemoved";
+                emit accountRemoved( oldAccount );
+                delete oldAccount;
+            }
             continue;
         }
+
+        if ( m_accounts.contains( alias ) ) {
+            qWarning() << "Account already loaded " << alias;
+            continue;
+        }
+
         Zzzz::MicroBlog* microblog = PluginManager::self()->microBlog( microblogName );
         if ( !microblog ) {
             qWarning() << "No such plugin for" << microblogName;
             continue;
         }
+
         /// try to load microblog plugin with alias
         Account* account = new Account( microblog );
-        QString alias = configGroup.readEntry( "Alias", QString() );
         account->setAlias( alias );
         account->readConfig();
         m_accounts.insert( alias, account );
     }
-
-    emit accountChanged();
 }
 
 void AccountManager::saveAccounts()
@@ -90,7 +101,7 @@ void AccountManager::addAccount( Account* newAccount )
 {
     qWarning() << "AccountManager::addAccount" << newAccount->alias();
     m_accounts.insert( newAccount->alias(), newAccount );
-    emit accountChanged();
+    emit accountAdded( newAccount );
 }
 
 void AccountManager::removeAccount( const QString& alias )
@@ -99,7 +110,7 @@ void AccountManager::removeAccount( const QString& alias )
     KSharedConfig::Ptr conf = KGlobal::config();
     conf->deleteGroup( QString( "Account_%1" ).arg( alias ) );
     conf->sync();
-    Account* account = m_accounts.take( alias );
-    delete account;
-    emit accountChanged();
+    Account* oldAccount = m_accounts.take( alias );
+    emit accountRemoved( oldAccount );
+    delete oldAccount;
 }

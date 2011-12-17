@@ -63,7 +63,8 @@ ZzzzAccountConfig::ZzzzAccountConfig( QWidget* parent, const QVariantList& args 
     connect( removeAccountButton, SIGNAL(clicked()), this, SLOT(slotRemoveAccount()) );
     buttonLayout->addWidget( removeAccountButton );
 
-    connect( AccountManager::self(), SIGNAL(accountChanged()), this, SLOT(loadAccounts()) );
+    connect( AccountManager::self(), SIGNAL(accountAdded(const Account*)), this, SLOT(loadAccounts()) );
+    connect( AccountManager::self(), SIGNAL(accountRemoved(const Account*)), this, SLOT(loadAccounts()) );
 }
 
 ZzzzAccountConfig::~ZzzzAccountConfig()
@@ -107,15 +108,15 @@ void ZzzzAccountConfig::slotRemoveAccount()
 void ZzzzAccountConfig::loadAccounts()
 {
     m_accountListView->clear();
-    QList<Account*> accounts = AccountManager::self()->accounts();
-    QList<Account*>::ConstIterator it = accounts.constBegin();
-    QList<Account*>::ConstIterator end = accounts.constEnd();
+    const QHash<QString, Account*>& accounts = AccountManager::self()->accounts();
+    QHash<QString, Account*>::ConstIterator it = accounts.constBegin();
+    QHash<QString, Account*>::ConstIterator end = accounts.constEnd();
     while ( it != end ) {
-        Account* account = *it;
+        QString alias = it.key();
+        Account* account = it.value();
         ++it;
         /// add account item widget
         bool accountEnabled = account->isEnabled();
-        QString alias = account->alias();
         Zzzz::MicroBlog* microblog = account->microblog();
         KPluginInfo pluginInfo = PluginManager::self()->microBlogPluginInfo( microblog );
         QListWidgetItem* accountItem = new QListWidgetItem;
