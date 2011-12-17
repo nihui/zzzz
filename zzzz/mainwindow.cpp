@@ -91,6 +91,8 @@ MainWindow::MainWindow()
     connect( m_buttonsWidget, SIGNAL(timelineClicked(const QString&)),
              this, SLOT(setCurrentTimeline(const QString&)) );
 
+    m_buttonsWidget->clickButton( "__HOME__" );
+
     setupActions();
 
     setupGUI();

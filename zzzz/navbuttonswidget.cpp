@@ -9,12 +9,12 @@
 #include <KIO/StoredTransferJob>
 #include <KLocale>
 #include <KMenu>
-#include <KPushButton>
 
 #include <QButtonGroup>
 #include <QContextMenuEvent>
 #include <QFocusEvent>
 #include <QHBoxLayout>
+#include <QPushButton>
 #include <QWheelEvent>
 
 NavButtonsWidget::NavButtonsWidget( QWidget* parent )
@@ -30,9 +30,6 @@ NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 
     connect( m_buttonGroup, SIGNAL(buttonClicked(int)),
              this, SLOT(slotButtonClicked(int)) );
-
-//     /// check home button by default
-//     m_buttonGroup->button( 0 )->click();
 }
 
 NavButtonsWidget::~NavButtonsWidget()
@@ -41,7 +38,7 @@ NavButtonsWidget::~NavButtonsWidget()
 
 bool NavButtonsWidget::eventFilter( QObject* watched, QEvent* event )
 {
-    KPushButton* button = qobject_cast<KPushButton*>(watched);
+    QPushButton* button = qobject_cast<QPushButton*>(watched);
     if ( button ) {
         if ( event->type() == QEvent::MouseButtonPress ) {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
@@ -77,11 +74,16 @@ bool NavButtonsWidget::eventFilter( QObject* watched, QEvent* event )
 
 void NavButtonsWidget::addButton( const QString& timelineName, const QString& iconName )
 {
-    KPushButton* button = new KPushButton;
+    QPushButton* button = new QPushButton;
     button->setIconSize( QSize( 32, 32 ) );
     button->setCheckable( true );
     button->setFlat( true );
     button->setFocusPolicy( Qt::NoFocus );
+
+    // make button transparent
+    QPalette pal = button->palette();
+    pal.setColor( QPalette::Button, Qt::transparent );
+    button->setPalette( pal );
 
     button->installEventFilter( this );
 
@@ -107,6 +109,11 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
     }
 }
 
+void NavButtonsWidget::clickButton( const QString& timelineName )
+{
+    m_navButton[ timelineName ]->click();
+}
+
 void NavButtonsWidget::wheelEvent( QWheelEvent* event )
 {
     int numDegrees = event->delta() / 8;
@@ -121,7 +128,7 @@ void NavButtonsWidget::wheelEvent( QWheelEvent* event )
     if ( toClickIndex < 0 )
         toClickIndex += buttonCount;
 
-    KPushButton* buttonToClick = static_cast<KPushButton*>(layout()->itemAt( toClickIndex )->widget());
+    QPushButton* buttonToClick = static_cast<QPushButton*>(layout()->itemAt( toClickIndex )->widget());
     buttonToClick->click();
 
     event->accept();
@@ -142,7 +149,7 @@ void NavButtonsWidget::slotLoadIcon( KJob* job )
     QString timelineName = m_jobIcon.take( job );
     KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
 
-    KPushButton* button = m_navButton[ timelineName ];
+    QPushButton* button = m_navButton[ timelineName ];
 
     QPixmap pix;
     pix.loadFromData( j->data() );

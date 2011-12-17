@@ -7,8 +7,8 @@
 
 class QButtonGroup;
 class QHBoxLayout;
+class QPushButton;
 
-class KPushButton;
 class KJob;
 
 class NavButtonsWidget : public QWidget
@@ -19,7 +19,7 @@ class NavButtonsWidget : public QWidget
         virtual ~NavButtonsWidget();
         virtual bool eventFilter( QObject* watched, QEvent* event );
         void addButton( const QString& timelineName, const QString& iconName );
-
+        void clickButton( const QString& timelineName );
     Q_SIGNALS:
         void timelineClicked( const QString& timelineName );
     protected:
@@ -33,7 +33,7 @@ class NavButtonsWidget : public QWidget
 
         QHash<int, QString> m_buttonIdTimeline;
 
-        QHash<QString, KPushButton*> m_navButton;
+        QHash<QString, QPushButton*> m_navButton;
 
         QPoint m_buttonStart;
         QPoint m_dragStart;
