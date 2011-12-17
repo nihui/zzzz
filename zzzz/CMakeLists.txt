@@ -15,9 +15,6 @@ target_link_libraries(zzzz_bin
     ${KDE4_KDEUI_LIBS}
     ${KDE4_KUTILS_LIBS}
     ${KDE4_KIO_LIBS}
-    ${KDE4_KHTML_LIBS}
-    ${KDE4_KDEWEBKIT_LIBS}
-    ${QT_QTWEBKIT_LIBRARY}
     ${Grantlee_CORE_LIBRARIES}
     zzzz
     zzzzprivate

@@ -1,4 +1,5 @@
 <table>
+{% autoescape off %}
 {% for post in posts %}
     <tr>
         <td>
@@ -15,4 +16,5 @@
         </td>
     </tr>
 {% endfor %}
+{% endautoescape %}
 </table>
