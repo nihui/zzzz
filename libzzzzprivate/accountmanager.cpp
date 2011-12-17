@@ -61,7 +61,7 @@ void AccountManager::loadAccounts()
                 /// delete account with disabled microblog plugin
                 Account* oldAccount = m_accounts.take( alias );
                 kWarning() << "emit accountRemoved";
-                emit accountRemoved( oldAccount );
+                emit accountRemoved( alias, oldAccount );
                 delete oldAccount;
             }
             continue;
@@ -83,6 +83,7 @@ void AccountManager::loadAccounts()
         account->setAlias( alias );
         account->readConfig();
         m_accounts.insert( alias, account );
+        emit accountAdded( alias, account );
     }
 }
 
@@ -101,7 +102,7 @@ void AccountManager::addAccount( Account* newAccount )
 {
     qWarning() << "AccountManager::addAccount" << newAccount->alias();
     m_accounts.insert( newAccount->alias(), newAccount );
-    emit accountAdded( newAccount );
+    emit accountAdded( newAccount->alias(), newAccount );
 }
 
 void AccountManager::removeAccount( const QString& alias )
@@ -111,6 +112,6 @@ void AccountManager::removeAccount( const QString& alias )
     conf->deleteGroup( QString( "Account_%1" ).arg( alias ) );
     conf->sync();
     Account* oldAccount = m_accounts.take( alias );
-    emit accountRemoved( oldAccount );
+    emit accountRemoved( alias, oldAccount );
     delete oldAccount;
 }

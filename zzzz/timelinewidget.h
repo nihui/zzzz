@@ -26,7 +26,7 @@ class TimelineWidget : public QWidget
         void retweetClicked( const PostWrapper* post );
     private Q_SLOTS:
         void refresh();
-        void slotAccountRemoved( const Account* oldAccount );
+        void slotAccountRemoved( const QString& alias, const Account* oldAccount );
         void slotGotMedia( const QString& url, const QImage& image );
         void slotErrorMedia( const QString& url );
         void slotAnchorClicked( const QUrl& url );

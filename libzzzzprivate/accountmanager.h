@@ -20,8 +20,8 @@ class ZZZZPRIVATE_EXPORT AccountManager : public QObject
         void addAccount( Account* newAccount );
         void removeAccount( const QString& alias );
     Q_SIGNALS:
-        void accountAdded( const Account* newAccount );
-        void accountRemoved( const Account* oldAccount );
+        void accountAdded( const QString& alias, const Account* newAccount );
+        void accountRemoved( const QString& alias, const Account* oldAccount );
     private:
         explicit AccountManager();
         static AccountManager* m_self;

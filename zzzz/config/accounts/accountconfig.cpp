@@ -63,8 +63,10 @@ ZzzzAccountConfig::ZzzzAccountConfig( QWidget* parent, const QVariantList& args 
     connect( removeAccountButton, SIGNAL(clicked()), this, SLOT(slotRemoveAccount()) );
     buttonLayout->addWidget( removeAccountButton );
 
-    connect( AccountManager::self(), SIGNAL(accountAdded(const Account*)), this, SLOT(loadAccounts()) );
-    connect( AccountManager::self(), SIGNAL(accountRemoved(const Account*)), this, SLOT(loadAccounts()) );
+    connect( AccountManager::self(), SIGNAL(accountAdded(const QString&, const Account*)),
+             this, SLOT(addAccountItem(const QString&, const Account*)) );
+    connect( AccountManager::self(), SIGNAL(accountRemoved(const QString&, const Account*)),
+             this, SLOT(removeAccountItem(const QString&, const Account*)) );
 }
 
 ZzzzAccountConfig::~ZzzzAccountConfig()
@@ -74,7 +76,14 @@ ZzzzAccountConfig::~ZzzzAccountConfig()
 
 void ZzzzAccountConfig::load()
 {
-    loadAccounts();
+    m_accountListView->clear();
+    const QHash<QString, Account*>& accounts = AccountManager::self()->accounts();
+    QHash<QString, Account*>::ConstIterator it = accounts.constBegin();
+    QHash<QString, Account*>::ConstIterator end = accounts.constEnd();
+    while ( it != end ) {
+        addAccountItem( it.key(), it.value() );
+        ++it;
+    }
 }
 
 void ZzzzAccountConfig::save()
@@ -105,23 +114,24 @@ void ZzzzAccountConfig::slotRemoveAccount()
     AccountManager::self()->removeAccount( accountAlias );
 }
 
-void ZzzzAccountConfig::loadAccounts()
+void ZzzzAccountConfig::addAccountItem( const QString& alias, const Account* newAccount )
 {
-    m_accountListView->clear();
-    const QHash<QString, Account*>& accounts = AccountManager::self()->accounts();
-    QHash<QString, Account*>::ConstIterator it = accounts.constBegin();
-    QHash<QString, Account*>::ConstIterator end = accounts.constEnd();
-    while ( it != end ) {
-        QString alias = it.key();
-        Account* account = it.value();
-        ++it;
-        /// add account item widget
-        bool accountEnabled = account->isEnabled();
-        Zzzz::MicroBlog* microblog = account->microblog();
-        KPluginInfo pluginInfo = PluginManager::self()->microBlogPluginInfo( microblog );
-        QListWidgetItem* accountItem = new QListWidgetItem;
-        accountItem->setText( alias );
-        accountItem->setIcon( QIcon::fromTheme( pluginInfo.icon() ) );
-        m_accountListView->addItem( accountItem );
+    /// add account item widget
+    bool accountEnabled = newAccount->isEnabled();
+    Zzzz::MicroBlog* microblog = newAccount->microblog();
+    KPluginInfo pluginInfo = PluginManager::self()->microBlogPluginInfo( microblog );
+    QListWidgetItem* accountItem = new QListWidgetItem;
+    accountItem->setText( alias );
+    accountItem->setIcon( QIcon::fromTheme( pluginInfo.icon() ) );
+    m_accountListView->addItem( accountItem );
+}
+
+void ZzzzAccountConfig::removeAccountItem( const QString& alias, const Account* oldAccount )
+{
+    /// remove account item widget
+    QList<QListWidgetItem*> items = m_accountListView->findItems( alias, Qt::MatchFixedString | Qt::MatchCaseSensitive );
+    foreach ( QListWidgetItem* accountItem, items ) {
+        m_accountListView->removeItemWidget( accountItem );
+        delete accountItem;
     }
 }

@@ -47,8 +47,8 @@ TimelineWidget::TimelineWidget( QWidget* parent )
 
     mainLayout->addWidget( m_textbrowser );
 
-    connect( AccountManager::self(), SIGNAL(accountRemoved(const Account*)),
-             this, SLOT(slotAccountRemoved(const Account*)) );
+    connect( AccountManager::self(), SIGNAL(accountRemoved(const QString&, const Account*)),
+             this, SLOT(slotAccountRemoved(const QString&, const Account*)) );
 
     connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
              this, SLOT(slotGotMedia(const QString&, const QImage&)) );
@@ -132,7 +132,7 @@ void TimelineWidget::refresh()
     m_textbrowser->setHtml( m_html );
 }
 
-void TimelineWidget::slotAccountRemoved( const Account* oldAccount )
+void TimelineWidget::slotAccountRemoved( const QString& alias, const Account* oldAccount )
 {
     QList<const PostWrapper*>::Iterator it = m_posts.begin();
     QList<const PostWrapper*>::Iterator end = m_posts.end();

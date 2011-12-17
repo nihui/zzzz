@@ -5,6 +5,7 @@
 
 class QListWidget;
 class KAction;
+class Account;
 
 class ZzzzAccountConfig : public KCModule
 {
@@ -20,7 +21,8 @@ class ZzzzAccountConfig : public KCModule
         void slotAddAccount();
         void slotModifyAccount();
         void slotRemoveAccount();
-        void loadAccounts();
+        void addAccountItem( const QString& alias, const Account* newAccount );
+        void removeAccountItem( const QString& alias, const Account* oldAccount );
     private:
         QListWidget* m_accountListView;
         KAction* m_addAccountAction;
