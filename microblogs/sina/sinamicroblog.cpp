@@ -1,6 +1,7 @@
 #include "sinamicroblog.h"
 
 #include <types.h>
+#include <utility.h>
 
 #include <QDebug>
 #include <QUrl>
@@ -111,6 +112,7 @@ void SinaMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& 
     QVariantMap usermap = varmap["user"].toMap();
     readUserFromJsonMap( usermap, post.user );
     post.text = varmap["text"].toString();
+    Zzzz::Utility::urlize( post.text );
     post.creationDateTime = varmap["created_at"].toString();
     post.replyToStatusId = varmap["in_reply_to_status_id"].toString();
     post.replyToUserId = varmap["in_reply_to_user_id"].toString();
@@ -124,7 +126,9 @@ void SinaMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& 
         // retweet
         QVariantMap retweeted_user = retweeted_status["user"].toMap();
         post.text.append( " @" + retweeted_user["screen_name"].toString() );
-        post.text.append( " " + retweeted_status["text"].toString() );
+        QString retweetText = retweeted_status["text"].toString();
+        Zzzz::Utility::urlize( retweetText );
+        post.text.append( " " + retweetText );
     }
 }
 

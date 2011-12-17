@@ -36,6 +36,7 @@ TimelineWidget::TimelineWidget( QWidget* parent )
     connect( m_timer, SIGNAL(timeout()), this, SLOT(refresh()) );
 
     m_textbrowser = new QTextBrowser;
+    m_textbrowser->setOpenExternalLinks( false );
     m_textbrowser->setOpenLinks( false );
     m_textbrowser->setUndoRedoEnabled( false );
 //     m_textbrowser->setDocumentMargin( 0 );

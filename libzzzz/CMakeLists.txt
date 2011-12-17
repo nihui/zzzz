@@ -3,6 +3,7 @@ set(libzzzz_SRCS
 microblog.cpp
 plugin.cpp
 tcmicroblog.cpp
+utility.cpp
 )
 
 kde4_add_library(zzzz SHARED ${libzzzz_SRCS})
