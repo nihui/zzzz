@@ -19,14 +19,14 @@ class ZzzzAccountConfig : public KCModule
         virtual void defaults();
     private Q_SLOTS:
         void slotAddAccount();
-        void slotModifyAccount();
+//         void slotModifyAccount();
         void slotRemoveAccount();
         void addAccountItem( const QString& alias, const Account* newAccount );
         void removeAccountItem( const QString& alias, const Account* oldAccount );
     private:
         QListWidget* m_accountListView;
         KAction* m_addAccountAction;
-        KAction* m_modifyAccountAction;
+//         KAction* m_modifyAccountAction;
         KAction* m_removeAccountAction;
 };
 

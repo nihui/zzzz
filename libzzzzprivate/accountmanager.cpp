@@ -60,7 +60,6 @@ void AccountManager::loadAccounts()
             if ( m_accounts.contains( alias ) ) {
                 /// delete account with disabled microblog plugin
                 Account* oldAccount = m_accounts.take( alias );
-                kWarning() << "emit accountRemoved";
                 emit accountRemoved( alias, oldAccount );
                 delete oldAccount;
             }

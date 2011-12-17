@@ -43,15 +43,15 @@ ZzzzAccountConfig::ZzzzAccountConfig( QWidget* parent, const QVariantList& args 
     connect( addAccountButton, SIGNAL(clicked()), this, SLOT(slotAddAccount()) );
     buttonLayout->addWidget( addAccountButton );
 
-    /// modify account
-    m_modifyAccountAction = new KAction( i18n( "&Modify Account..." ), this );
-    m_modifyAccountAction->setIcon( KIcon( "configure" ) );
-    KPushButton* modifyAccountButton = new KPushButton;
-    modifyAccountButton->setText( m_modifyAccountAction->text() );
-    modifyAccountButton->setIcon( KIcon( "configure" ) );
-    connect( m_modifyAccountAction, SIGNAL(triggered(bool)), this, SLOT(slotModifyAccount()) );
-    connect( modifyAccountButton, SIGNAL(clicked()), this, SLOT(slotModifyAccount()) );
-    buttonLayout->addWidget( modifyAccountButton );
+//     /// modify account
+//     m_modifyAccountAction = new KAction( i18n( "&Modify Account..." ), this );
+//     m_modifyAccountAction->setIcon( KIcon( "configure" ) );
+//     KPushButton* modifyAccountButton = new KPushButton;
+//     modifyAccountButton->setText( m_modifyAccountAction->text() );
+//     modifyAccountButton->setIcon( KIcon( "configure" ) );
+//     connect( m_modifyAccountAction, SIGNAL(triggered(bool)), this, SLOT(slotModifyAccount()) );
+//     connect( modifyAccountButton, SIGNAL(clicked()), this, SLOT(slotModifyAccount()) );
+//     buttonLayout->addWidget( modifyAccountButton );
 
     /// remove account
     m_removeAccountAction = new KAction( i18n( "&Remove Account" ), this );
@@ -100,9 +100,9 @@ void ZzzzAccountConfig::slotAddAccount()
     addAccountWizard->show();
 }
 
-void ZzzzAccountConfig::slotModifyAccount()
-{
-}
+// void ZzzzAccountConfig::slotModifyAccount()
+// {
+// }
 
 void ZzzzAccountConfig::slotRemoveAccount()
 {

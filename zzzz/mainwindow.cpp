@@ -114,7 +114,6 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    delete m_settingsDialog;
 }
 
 void MainWindow::setCurrentTimeline( const QString& timelineName )
@@ -124,8 +123,10 @@ void MainWindow::setCurrentTimeline( const QString& timelineName )
 
 void MainWindow::slotConfigure()
 {
-    if ( !m_settingsDialog )
-        m_settingsDialog = new KSettings::Dialog;
+    if ( !m_settingsDialog ) {
+        m_settingsDialog = new KSettings::Dialog( this );
+        m_settingsDialog->resize( 640, 480 );
+    }
     m_settingsDialog->show();
 }
 
@@ -159,9 +160,6 @@ void MainWindow::updateTimelines()
 
 void MainWindow::updateTimeline( const QString& timelineName )
 {
-//     TimelineWidget* tw = m_timelineWidget.value( t );
-//     tw->clearPosts();
-
     const QHash<QString, Account*>& accounts = AccountManager::self()->accounts();
     QHash<QString, Account*>::ConstIterator it = accounts.constBegin();
     QHash<QString, Account*>::ConstIterator end = accounts.constEnd();
@@ -189,7 +187,6 @@ void MainWindow::updateTimeline( const QString& timelineName )
         m_jobTimeline[ job ] = timelineName + " zzzz";
         job->start();
     }
-
 }
 
 void MainWindow::updateUserTimeline( const PostWrapper* post )
