@@ -23,6 +23,11 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
+static bool postWrapperGreaterThan( const PostWrapper*& p1, const PostWrapper*& p2 )
+{
+    return p1->m_post.creationDateTime > p2->m_post.creationDateTime;
+}
+
 TimelineWidget::TimelineWidget( QWidget* parent )
 : QWidget(parent)
 {
@@ -63,11 +68,21 @@ TimelineWidget::~TimelineWidget()
 
 void TimelineWidget::appendPost( const PostWrapper* post )
 {
+    if ( postExists( post ) ) {
+        delete post;
+        return;
+    }
+
     m_posts.append( post );
 }
 
 void TimelineWidget::prependPost( const PostWrapper* post )
 {
+    if ( postExists( post ) ) {
+        delete post;
+        return;
+    }
+
     m_posts.prepend( post );
 }
 
@@ -85,6 +100,8 @@ void TimelineWidget::updateHTML()
     QSet<QString> imageUrls;
 
     QVariantList postList;
+
+    qSort( m_posts.begin(), m_posts.end(), postWrapperGreaterThan );
 
     QList<const PostWrapper*>::ConstIterator it = m_posts.constBegin();
     QList<const PostWrapper*>::ConstIterator end = m_posts.constEnd();
@@ -166,6 +183,22 @@ void TimelineWidget::slotErrorMedia( const QString& url )
 void TimelineWidget::slotAnchorClicked( const QUrl& url )
 {
     handleUrlString( url.toString() );
+}
+
+bool TimelineWidget::postExists( const PostWrapper* post )
+{
+    QList<const PostWrapper*>::ConstIterator it = m_posts.constBegin();
+    QList<const PostWrapper*>::ConstIterator end = m_posts.constEnd();
+    while ( it != end ) {
+        const PostWrapper* p = *it;
+        ++it;
+
+        if ( p->myAccount == post->myAccount
+            && p->m_post.id == post->m_post.id ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void TimelineWidget::delayedRefresh()

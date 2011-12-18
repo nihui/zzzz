@@ -31,6 +31,7 @@ class TimelineWidget : public QWidget
         void slotErrorMedia( const QString& url );
         void slotAnchorClicked( const QUrl& url );
     private:
+        bool postExists( const PostWrapper* post );
         void delayedRefresh();
         void handleUrlString( const QString& url );
     private:
