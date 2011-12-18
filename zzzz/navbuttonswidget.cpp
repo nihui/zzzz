@@ -1,12 +1,12 @@
 #include "navbuttonswidget.h"
 
+#include "mediafetcher.h"
+
 #include <types.h>
 
 #include <KAction>
 #include <KDebug>
 #include <KIcon>
-#include <KIO/Job>
-#include <KIO/StoredTransferJob>
 #include <KLocale>
 #include <KMenu>
 
@@ -30,6 +30,11 @@ NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 
     connect( m_buttonGroup, SIGNAL(buttonClicked(int)),
              this, SLOT(slotButtonClicked(int)) );
+
+    connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
+             this, SLOT(slotGotAvatar(const QString&, const QImage&)) );
+    connect( MediaFetcher::self(), SIGNAL(gotImage(const QString&, const QImage&)),
+             this, SLOT(slotErrorAvatar(const QString&, const QImage&)) );
 }
 
 NavButtonsWidget::~NavButtonsWidget()
@@ -98,11 +103,8 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
 
     if ( iconName.startsWith( "http://" ) ) {
         /// load icon from remote url
-//         qWarning() << "load icon from remote url" << iconName;
-        KIO::StoredTransferJob* job = KIO::storedGet( KUrl( iconName ), KIO::Reload, KIO::HideProgressInfo );
-        connect( job, SIGNAL(result(KJob*)), this, SLOT(slotLoadIcon(KJob*)) );
-        m_jobIcon[ job ] = timelineName;
-        job->start();
+        m_urlTimeline[ iconName ] = timelineName;
+        MediaFetcher::self()->requestAvatar( iconName );
     }
     else {
         button->setIcon( KIcon( iconName ) );
@@ -139,19 +141,24 @@ void NavButtonsWidget::slotButtonClicked( int id )
     emit timelineClicked( m_buttonIdTimeline[ id ] );
 }
 
-void NavButtonsWidget::slotLoadIcon( KJob* job )
+void NavButtonsWidget::slotGotAvatar( const QString& url, const QImage& image )
 {
-    if ( job->error() ) {
-        qWarning() << "Job Error: " << job->errorString();
+    if ( !m_urlTimeline.contains( url ) )
         return;
-    }
 
-    QString timelineName = m_jobIcon.take( job );
-    KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
-
+    QString timelineName = m_urlTimeline.take( url );
     QPushButton* button = m_navButton[ timelineName ];
 
-    QPixmap pix;
-    pix.loadFromData( j->data() );
-    button->setIcon( KIcon( pix ) );
+    button->setIcon( KIcon( QPixmap::fromImage( image ) ) );
+}
+
+void NavButtonsWidget::slotErrorAvatar( const QString& url )
+{
+    if ( !m_urlTimeline.contains( url ) )
+        return;
+
+    QString timelineName = m_urlTimeline.take( url );
+    QPushButton* button = m_navButton[ timelineName ];
+
+    button->setIcon( KIcon( "image-missing" ) );
 }

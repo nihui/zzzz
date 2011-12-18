@@ -9,8 +9,6 @@ class QButtonGroup;
 class QHBoxLayout;
 class QPushButton;
 
-class KJob;
-
 class NavButtonsWidget : public QWidget
 {
     Q_OBJECT
@@ -26,7 +24,8 @@ class NavButtonsWidget : public QWidget
         virtual void wheelEvent( QWheelEvent* event );
     private Q_SLOTS:
         void slotButtonClicked( int id );
-        void slotLoadIcon( KJob* job );
+        void slotGotAvatar( const QString& url, const QImage& image );
+        void slotErrorAvatar( const QString& url );
     private:
         QHBoxLayout* m_buttonLayout;
         QButtonGroup* m_buttonGroup;
@@ -38,7 +37,7 @@ class NavButtonsWidget : public QWidget
         QPoint m_buttonStart;
         QPoint m_dragStart;
 
-        QHash<KJob*, QString> m_jobIcon;
+        QHash<QString, QString> m_urlTimeline;
 };
 
 #endif // NAVBUTTONSWIDGET_H
