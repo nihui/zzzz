@@ -61,10 +61,10 @@ void SohuMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& param
     }
 }
 
-void SohuMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+void SohuMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const QString& screenName )
 {
     apiUrl = "http://api.t.sohu.com/statuses/user_timeline.json";
-    params.insert( "nick_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "nick_name", screenName.toUtf8().toPercentEncoding() );
     params.insert( "count", "20" );
 }
 

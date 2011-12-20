@@ -15,7 +15,7 @@ class ZZZZ_EXPORT TwitterCompatibleAPIMicroBlog : public MicroBlog
         virtual void oauthAuthorize( QString& apiUrl, ParamMap& params );
         virtual void oauthAccessToken( QString& apiUrl, HttpMethod& method, ParamMap& params );
         virtual void updateTimeline( Timeline t, QString& apiUrl, ParamMap& params );
-        virtual void updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user );
+        virtual void updateUserTimeline( QString& apiUrl, ParamMap& params, const QString& screenName );
         virtual QStringList timelines() const;
         virtual void updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params );
         virtual int charLimit() const;

@@ -64,10 +64,10 @@ void SinaMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& param
     }
 }
 
-void SinaMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+void SinaMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const QString& screenName )
 {
     apiUrl = "http://api.t.sina.com.cn/statuses/user_timeline.json";
-    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "screen_name", screenName.toUtf8().toPercentEncoding() );
     params.insert( "count", "20" );
 }
 
