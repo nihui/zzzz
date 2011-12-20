@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QMetaType>
+#include <QMultiMap>
 
 namespace Zzzz {
 

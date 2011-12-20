@@ -55,10 +55,10 @@ void TwitterCompatibleAPIMicroBlog::updateTimeline( Timeline t, QString& apiUrl,
     }
 }
 
-void TwitterCompatibleAPIMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const QString& screenName )
+void TwitterCompatibleAPIMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
 {
     apiUrl = apiRoot() + "/statuses/user_timeline.json";
-    params.insert( "screen_name", screenName.toUtf8().toPercentEncoding() );
+    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
     params.insert( "count", "20" );
 }
 

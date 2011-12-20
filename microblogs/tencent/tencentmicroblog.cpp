@@ -71,11 +71,11 @@ void TencentMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& pa
     }
 }
 
-void TencentMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const QString& screenName )
+void TencentMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
 {
     apiUrl = "http://open.t.qq.com/api/statuses/user_timeline";
     params.insert( "format", "json" );
-    params.insert( "name", screenName.toUtf8().toPercentEncoding() );
+    params.insert( "name", user.name.toUtf8().toPercentEncoding() );
     params.insert( "pageflag", "0" );
     params.insert( "pagetime", "0" );
     params.insert( "reqnum", "20" );
@@ -155,10 +155,10 @@ void TencentMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Pos
     post.text = varmap["text"].toString();
     post.creationDateTime = varmap["timestamp"].toUInt();
 
-    post.user.screenName = varmap["name"].toString();
+    post.user.name = varmap["name"].toString();
     post.user.location = varmap["location"].toString();
     post.user.id = varmap["uid"].toString();
-    post.user.name = varmap["nick"].toString();
+    post.user.screenName = varmap["nick"].toString();
     QString profileImageUrlBase = QUrl::fromPercentEncoding( varmap["head"].toString().toUtf8() );
     if ( !profileImageUrlBase.isEmpty() ) {
         post.user.profileImageUrl = profileImageUrlBase + "/50";

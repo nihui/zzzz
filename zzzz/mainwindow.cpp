@@ -201,7 +201,7 @@ void MainWindow::updateUserTimeline( const PostWrapper* post )
     QString apiUrl;
     Zzzz::MicroBlog::ParamMap params;
     /// update user timeline using microblog for account
-    microblog->updateUserTimeline( apiUrl, params, post->m_post.user.screenName );
+    microblog->updateUserTimeline( apiUrl, params, post->m_post.user );
 
     KUrl url( apiUrl );
     QByteArray hs = account->createParametersString( apiUrl, Zzzz::MicroBlog::GET, params );

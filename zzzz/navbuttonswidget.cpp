@@ -33,8 +33,8 @@ NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 
     connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
              this, SLOT(slotGotAvatar(const QString&, const QImage&)) );
-    connect( MediaFetcher::self(), SIGNAL(gotImage(const QString&, const QImage&)),
-             this, SLOT(slotErrorAvatar(const QString&, const QImage&)) );
+    connect( MediaFetcher::self(), SIGNAL(errorAvatar(const QString&)),
+             this, SLOT(slotErrorAvatar(const QString&)) );
 }
 
 NavButtonsWidget::~NavButtonsWidget()

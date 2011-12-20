@@ -40,7 +40,7 @@ class ZZZZ_EXPORT MicroBlog : public Plugin
         virtual void oauthAccessToken( QString& apiUrl, HttpMethod& method, ParamMap& params ) = 0;
         /// timeline part
         virtual void updateTimeline( Timeline t, QString& apiUrl, ParamMap& params ) = 0;
-        virtual void updateUserTimeline( QString& apiUrl, ParamMap& params, const QString& screenName ) = 0;
+        virtual void updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user ) = 0;
         virtual QStringList timelines() const = 0;
         virtual void updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params ) = 0;
         /// char limit

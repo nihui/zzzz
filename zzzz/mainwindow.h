@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <microblog.h>
+
 #include <KXmlGuiWindow>
 
 class QStackedLayout;
@@ -12,6 +14,8 @@ class TimelineWidget;
 class ComposerWidget;
 class NavButtonsWidget;
 class PostWrapper;
+
+class NavTabBar;
 
 class MainWindow : public KXmlGuiWindow
 {
