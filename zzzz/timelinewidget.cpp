@@ -17,8 +17,6 @@
 #include <QLineEdit>
 #include <QResizeEvent>
 #include <QSet>
-#include <QStandardItem>
-#include <QStandardItemModel>
 #include <QTextBrowser>
 #include <QTimer>
 #include <QVBoxLayout>
