@@ -24,6 +24,8 @@ class TimelineWidget : public QWidget
         void userClicked( const PostWrapper* post );
         void replyClicked( const PostWrapper* post );
         void retweetClicked( const PostWrapper* post );
+        void usernameClicked( const PostWrapper* post, const QString& username );
+        void topicClicked( const PostWrapper* post, const QString& topic );
     private Q_SLOTS:
         void refresh();
         void slotAccountRemoved( const QString& alias, const Account* oldAccount );

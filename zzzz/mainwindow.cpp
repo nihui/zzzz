@@ -215,6 +215,35 @@ void MainWindow::updateUserTimeline( const PostWrapper* post )
     job->start();
 }
 
+void MainWindow::updateUserTimeline( const PostWrapper* post, const QString& username )
+{
+    Account* account = post->myAccount;
+    if ( !account || !account->isAuthorized() ) {
+        return;
+    }
+
+    Zzzz::MicroBlog* microblog = account->microblog();
+
+    QString apiUrl;
+    Zzzz::MicroBlog::ParamMap params;
+    /// update user timeline using microblog for account
+    Zzzz::User user;
+    user.name = username;
+    user.screenName = username;
+    microblog->updateUserTimeline( apiUrl, params, user );
+
+    KUrl url( apiUrl );
+    QByteArray hs = account->createParametersString( apiUrl, Zzzz::MicroBlog::GET, params );
+    url.setQuery( hs );
+
+    KIO::StoredTransferJob* job = KIO::storedGet( url, KIO::Reload, KIO::HideProgressInfo );
+    job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
+    connect( job, SIGNAL(result(KJob*)), this, SLOT(slotUpdateTimeline(KJob*)) );
+    m_jobAccount[ job ] = account;
+    m_jobTimeline[ job ] = user.screenName + " zzzz_fetch";
+    job->start();
+}
+
 void MainWindow::slotUpdateTimeline( KJob* job )
 {
     if ( job->error() ) {
@@ -240,6 +269,10 @@ void MainWindow::slotUpdateTimeline( KJob* job )
     TimelineWidget* tw = m_timelineWidget.value( timeline );
     if ( !tw ) {
         /// create user timeline
+        if ( iconName == "zzzz_fetch" ) {
+            // click from username
+            iconName = postlist.first().user.profileImageUrl;
+        }
         qWarning() << "create timeline widget" << timeline << iconName;
         createTimelineWidget( timeline, iconName );
         tw = m_timelineWidget.value( timeline );
@@ -399,6 +432,8 @@ void MainWindow::createTimelineWidget( const QString& timelineName, const QStrin
              m_composerWidget, SLOT(composeReply(const PostWrapper*)) );
     connect( tw, SIGNAL(retweetClicked(const PostWrapper*)),
              this, SLOT(retweetPost(const PostWrapper*)) );
+    connect( tw, SIGNAL(usernameClicked(const PostWrapper*,const QString&)),
+             this, SLOT(updateUserTimeline(const PostWrapper*,const QString&)) );
 
     m_stackedLayout->addWidget( tw );
     m_buttonsWidget->addButton( timelineName, iconName );

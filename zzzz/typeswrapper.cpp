@@ -1,11 +1,13 @@
 #include "typeswrapper.h"
 
 #include <QDateTime>
+#include <QRegExp>
 
 PostWrapper::PostWrapper( const Zzzz::Post& post ) : m_post(post),myAccount(0) {}
 
 QString PostWrapper::id() const { return m_post.id; }
 QString PostWrapper::text() const { return m_post.text; }
+QString PostWrapper::zzzztext() const { return m_zzzztext; }
 
 QString PostWrapper::userId() const { return m_post.user.id; }
 QString PostWrapper::userName() const { return m_post.user.name; }

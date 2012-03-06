@@ -16,6 +16,7 @@
 
 #include <QLineEdit>
 #include <QResizeEvent>
+#include <QRegExp>
 #include <QSet>
 #include <QTextBrowser>
 #include <QTimer>
@@ -113,6 +114,15 @@ void TimelineWidget::updateHTML()
         post->m_userLink = QString( "zzzz:user:%1" ).arg( i );
         post->m_replyLink = QString( "zzzz:reply:%1" ).arg( i );
         post->m_retweetLink = QString( "zzzz:retweet:%1" ).arg( i );
+
+        post->m_zzzztext = post->m_post.text;
+        // @username
+        static QRegExp usernameRegex( "@(([^\\s\\W]+))", Qt::CaseInsensitive );
+        post->m_zzzztext.replace( usernameRegex, QString( "<a href=\"zzzz:username:%1:\\1\">@\\1</a>" ).arg( i ) );
+        // #topic
+        static QRegExp topicRegex( "#(([^\\s\\W]+))#", Qt::CaseInsensitive );
+        post->m_zzzztext.replace( topicRegex, QString( "<a href=\"zzzz:topic:%1:\\1\">#\\1#</a>" ).arg( i ) );
+
         ++i;
 
         ++it;
@@ -210,17 +220,27 @@ void TimelineWidget::handleUrlString( const QString& url )
         return;
 
     kWarning() << url;
-    if ( url.startsWith( "zzzz:user" ) ) {
-        int i = url.section( ':', 2, -1 ).toInt();
+    if ( url.startsWith( "zzzz:user:" ) ) {
+        int i = url.section( ':', 2, 2 ).toInt();
         emit userClicked( m_posts.at( i ) );
     }
-    else if ( url.startsWith( "zzzz:reply" ) ) {
-        int i = url.section( ':', 2, -1 ).toInt();
+    else if ( url.startsWith( "zzzz:reply:" ) ) {
+        int i = url.section( ':', 2, 2 ).toInt();
         emit replyClicked( m_posts.at( i ) );
     }
-    else if ( url.startsWith( "zzzz:retweet" ) ) {
-        int i = url.section( ':', 2, -1 ).toInt();
+    else if ( url.startsWith( "zzzz:retweet:" ) ) {
+        int i = url.section( ':', 2, 2 ).toInt();
         emit retweetClicked( m_posts.at( i ) );
+    }
+    else if ( url.startsWith( "zzzz:username:" ) ) {
+        int i = url.section( ':', 2, 2 ).toInt();
+        QString username = url.section( ':', 3, 3 );
+        emit usernameClicked( m_posts.at( i ), username );
+    }
+    else if ( url.startsWith( "zzzz:topic:" ) ) {
+        int i = url.section( ':', 2, 2 ).toInt();
+        QString topic = url.section( ':', 3, 3 );
+        emit topicClicked( m_posts.at( i ), topic );
     }
     else {
         KToolInvocation::invokeBrowser( url );

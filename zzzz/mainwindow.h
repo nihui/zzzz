@@ -27,6 +27,7 @@ class MainWindow : public KXmlGuiWindow
 
         void updateTimeline( const QString& timelineName );
         void updateUserTimeline( const PostWrapper* post );
+        void updateUserTimeline( const PostWrapper* post, const QString& username );
         void slotUpdateTimeline( KJob* job );
         void createPost( const PostWrapper* post );
         void slotCreatePost( KJob* job );

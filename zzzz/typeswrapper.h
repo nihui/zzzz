@@ -10,6 +10,7 @@ class PostWrapper : public QObject
     Q_OBJECT
     Q_PROPERTY(QString id READ id)
     Q_PROPERTY(QString text READ text)
+    Q_PROPERTY(QString zzzztext READ zzzztext)
 
     Q_PROPERTY(QString userId READ userId)
     Q_PROPERTY(QString userName READ userName)
@@ -36,6 +37,7 @@ class PostWrapper : public QObject
         explicit PostWrapper( const Zzzz::Post& post );
         QString id() const;
         QString text() const;
+        QString zzzztext() const;
 
         QString userId() const;
         QString userName() const;
@@ -60,6 +62,7 @@ class PostWrapper : public QObject
         QString retweetLink() const;
     public:
         Zzzz::Post m_post;
+        mutable QString m_zzzztext;
 
         mutable QString m_userLink;
         mutable QString m_replyLink;
