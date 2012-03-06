@@ -5,37 +5,21 @@
 
 class Account;
 
-class UserWrapper : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(QString id READ id)
-    Q_PROPERTY(QString name READ name)
-    Q_PROPERTY(QString screenName READ screenName)
-    Q_PROPERTY(QString description READ description)
-    Q_PROPERTY(QString location READ location)
-    Q_PROPERTY(QString profileImageUrl READ profileImageUrl)
-    Q_PROPERTY(QString url READ url)
-    Q_PROPERTY(int followersCount READ followersCount)
-    public:
-        explicit UserWrapper( const Zzzz::User& user );
-        QString id() const;
-        QString name() const;
-        QString screenName() const;
-        QString description() const;
-        QString location() const;
-        QString profileImageUrl() const;
-        QString url() const;
-        int followersCount() const;
-    public:
-        Zzzz::User m_user;
-};
-
 class PostWrapper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString id READ id)
     Q_PROPERTY(QString text READ text)
-    Q_PROPERTY(QObject* user READ user)
+
+    Q_PROPERTY(QString userId READ userId)
+    Q_PROPERTY(QString userName READ userName)
+    Q_PROPERTY(QString userScreenName READ userScreenName)
+    Q_PROPERTY(QString userDescription READ userDescription)
+    Q_PROPERTY(QString userLocation READ userLocation)
+    Q_PROPERTY(QString userProfileImageUrl READ userProfileImageUrl)
+    Q_PROPERTY(QString userUrl READ userUrl)
+    Q_PROPERTY(int userFollowersCount READ userFollowersCount)
+
     Q_PROPERTY(QString source READ source)
     Q_PROPERTY(QString creationDateTime READ creationDateTime)
     Q_PROPERTY(QString replyToStatusId READ replyToStatusId)
@@ -50,10 +34,18 @@ class PostWrapper : public QObject
     Q_PROPERTY(QString retweetLink READ retweetLink)
     public:
         explicit PostWrapper( const Zzzz::Post& post );
-        virtual ~PostWrapper();
         QString id() const;
         QString text() const;
-        QObject* user() const;
+
+        QString userId() const;
+        QString userName() const;
+        QString userScreenName() const;
+        QString userDescription() const;
+        QString userLocation() const;
+        QString userProfileImageUrl() const;
+        QString userUrl() const;
+        int userFollowersCount() const;
+
         QString source() const;
         QString creationDateTime() const;
         QString replyToStatusId() const;
@@ -68,12 +60,10 @@ class PostWrapper : public QObject
         QString retweetLink() const;
     public:
         Zzzz::Post m_post;
-        UserWrapper* m_userWrapper;
 
         mutable QString m_userLink;
         mutable QString m_replyLink;
         mutable QString m_retweetLink;
-
 
         Account* myAccount;
 };

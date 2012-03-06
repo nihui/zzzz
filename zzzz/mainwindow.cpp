@@ -278,7 +278,9 @@ void MainWindow::createPost( const PostWrapper* post )
         KIO::StoredTransferJob* job = KIO::storedHttpPost( rc, url, KIO::HideProgressInfo );
         job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
         m_jobAccount[ job ] = account;
-//         m_jobPost[ job ] = post;
+        m_jobPost[ job ] = post;
+        int& refs = m_jobPostRefs[ post ];
+        refs++;
         connect( job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)) );
         job->start();
     }
@@ -305,7 +307,9 @@ void MainWindow::createPost( const PostWrapper* post )
             KIO::StoredTransferJob* job = KIO::storedHttpPost( rc, url, KIO::HideProgressInfo );
             job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
             m_jobAccount[ job ] = account;
-    //         m_jobPost[ job ] = post;
+            m_jobPost[ job ] = post;
+            int& refs = m_jobPostRefs[ post ];
+            refs++;
             connect( job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)) );
             job->start();
         }
@@ -320,11 +324,22 @@ void MainWindow::slotCreatePost( KJob* job )
     }
 
     Account* account = m_jobAccount.take( job );
-//     Zzzz::Post originalPost = m_jobPost.take( job );
+    const PostWrapper* refPost = m_jobPost.take( job );
     KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
     qWarning() << QString::fromUtf8( j->data() );
     Zzzz::MicroBlog* microblog = account->microblog();
-    Zzzz::Post p;
+
+    Zzzz::Post p = refPost->m_post;
+
+    if ( m_jobPostRefs.contains( refPost ) ) {
+        int& refs = m_jobPostRefs[ refPost ];
+        refs--;
+        if (refs == 0) {
+            m_jobPostRefs.remove( refPost );
+            delete refPost;
+        }
+    }
+
     bool ok;
     microblog->readPostFromData( j->data(), p, &ok );
     if ( !ok ) {
@@ -359,7 +374,7 @@ void MainWindow::retweetPost( const PostWrapper* post )
     KIO::StoredTransferJob* job = KIO::storedHttpPost( rc, apiUrl, KIO::HideProgressInfo );
     job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
     m_jobAccount[ job ] = account;
-//         m_jobPost[ job ] = post;
+    m_jobPost[ job ] = post;
     connect( job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)) );
     job->start();
 }

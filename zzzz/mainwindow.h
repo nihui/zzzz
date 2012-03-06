@@ -43,7 +43,8 @@ class MainWindow : public KXmlGuiWindow
         ComposerWidget* m_composerWidget;
         QHash<KJob*, Account*> m_jobAccount;
         QHash<KJob*, QString> m_jobTimeline;
-//         QHash<KJob*, PostWrapper*> m_jobPost;
+        QHash<KJob*, const PostWrapper*> m_jobPost;
+        QHash<const PostWrapper*, int> m_jobPostRefs;
         KSettings::Dialog* m_settingsDialog;
 };
 

@@ -150,6 +150,14 @@ void TencentMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Pos
 {
 //     qWarning() << "##############################################################";
 //     qWarning() << varmap;
+    QVariantMap datamap = varmap["data"].toMap();
+    if ( !datamap.isEmpty() ) {
+        // return from create post
+        post.id = datamap["id"].toString();
+        post.creationDateTime = datamap["time"].toUInt();
+        return;
+    }
+
     post.id = varmap["id"].toString();
     post.source = varmap["from"].toString();
     post.text = varmap["text"].toString();

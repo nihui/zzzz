@@ -3,6 +3,7 @@
 
 #include <KTextEdit>
 
+class Account;
 class PostWrapper;
 
 class ComposerWidget : public KTextEdit
@@ -27,8 +28,8 @@ class ComposerWidget : public KTextEdit
         void setEditing( bool isEditing );
     private:
         int m_limit;
-        PostWrapper* m_post;
-//         QString m_replyToStatusId;
+        Account* m_replyAccount;
+        QString m_replyToStatusId;
 };
 
 #endif // COMPOSERWIDGET_H

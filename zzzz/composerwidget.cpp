@@ -21,7 +21,7 @@ ComposerWidget::ComposerWidget( QWidget* parent )
 {
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Preferred );
 
-    m_post = new PostWrapper( Zzzz::Post() );
+    m_replyAccount = 0;
 
     setEditing( false );
 
@@ -42,8 +42,8 @@ void ComposerWidget::setCharLimit( int limit )
 
 void ComposerWidget::composeReply( const PostWrapper* post )
 {
-    m_post->myAccount = post->myAccount;
-    m_post->m_post.replyToStatusId = post->m_post.id;
+    m_replyAccount = post->myAccount;
+    m_replyToStatusId = post->m_post.id;
     setPlainText( "@" + post->m_post.user.screenName + " " + toPlainText() );
     setFocus();
 }
@@ -68,9 +68,14 @@ void ComposerWidget::keyPressEvent( QKeyEvent* event )
         QString text = toPlainText();
         if ( !text.isEmpty() ) {
             kWarning() << "enter pressed" << text;
-            m_post->m_post.text = text;
-            emit postComposed( m_post );
+            PostWrapper* post = new PostWrapper( Zzzz::Post() );
+            post->myAccount = m_replyAccount;
+            post->m_post.replyToStatusId = m_replyToStatusId;
+            post->m_post.text = text;
+            emit postComposed( post );
             clear();
+            m_replyAccount = 0;
+            m_replyToStatusId.clear();
             setEditing( false );
         }
         return;
