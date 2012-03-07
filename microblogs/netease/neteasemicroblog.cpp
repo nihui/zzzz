@@ -66,7 +66,7 @@ void NeteaseMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& pa
 void NeteaseMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
 {
     apiUrl = "http://api.t.163.com/statuses/user_timeline.json";
-    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
+    params.insert( "name", user.name.toUtf8().toPercentEncoding() );
     params.insert( "count", "20" );
 }
 
@@ -127,6 +127,15 @@ void NeteaseMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Pos
     QVariantMap usermap = varmap["user"].toMap();
     readUserFromJsonMap( usermap, post.user );
     post.text = varmap["text"].toString();
+    // extract http://126.fm/xxxx thumbnail_pic
+    static QRegExp fm126Regex( "(http://126\\.fm/[^\\s\\W]+)", Qt::CaseSensitive );
+    int pos = fm126Regex.indexIn( post.text );
+    if ( pos > -1 ) {
+        QString fm126url = fm126Regex.cap( 1 );
+        post.thumbnailPic = QString( "http://oimagea2.ydstatic.com/image?h=120&url=%1" ).arg( fm126url );
+        post.originalPic = QString( "http://oimagea2.ydstatic.com/image?url=%1" ).arg( fm126url );
+        post.text = post.text.remove( fm126url ).trimmed();
+    }
     Zzzz::Utility::urlize( post.text );
     post.creationDateTime = Zzzz::Utility::string2datetime( varmap["created_at"].toString() );
     post.replyToStatusId = varmap["in_reply_to_status_id"].toString();

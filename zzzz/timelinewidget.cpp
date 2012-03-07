@@ -117,10 +117,10 @@ void TimelineWidget::updateHTML()
 
         post->m_zzzztext = post->m_post.text;
         // @username
-        static QRegExp usernameRegex( "@(([^\\s\\W]+))", Qt::CaseInsensitive );
+        static QRegExp usernameRegex( "@([^\\s\\W]+)", Qt::CaseInsensitive );
         post->m_zzzztext.replace( usernameRegex, QString( "<a href=\"zzzz:username:%1:\\1\">@\\1</a>" ).arg( i ) );
         // #topic
-        static QRegExp topicRegex( "#(([^\\s\\W]+))#", Qt::CaseInsensitive );
+        static QRegExp topicRegex( "#([^\\s\\W]+)#", Qt::CaseInsensitive );
         post->m_zzzztext.replace( topicRegex, QString( "<a href=\"zzzz:topic:%1:\\1\">#\\1#</a>" ).arg( i ) );
 
         ++i;

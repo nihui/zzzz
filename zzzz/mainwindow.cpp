@@ -269,7 +269,7 @@ void MainWindow::slotUpdateTimeline( KJob* job )
     TimelineWidget* tw = m_timelineWidget.value( timeline );
     if ( !tw ) {
         /// create user timeline
-        if ( iconName == "zzzz_fetch" ) {
+        if ( iconName == "zzzz_fetch" && !postlist.isEmpty() ) {
             // click from username
             iconName = postlist.first().user.profileImageUrl;
         }
