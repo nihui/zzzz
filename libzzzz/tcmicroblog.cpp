@@ -97,6 +97,28 @@ void TwitterCompatibleAPIMicroBlog::retweetPost( const Zzzz::Post& post, QString
     apiUrl = apiRoot() + QString( "/statuses/retweet/%1.json" ).arg( post.id );
 }
 
+void TwitterCompatibleAPIMicroBlog::createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = apiRoot() + QString( "/favorites/create/%1.json" ).arg( post.id );
+}
+
+void TwitterCompatibleAPIMicroBlog::removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = apiRoot() + QString( "/favorites/destroy/%1.json" ).arg( post.id );
+}
+
+void TwitterCompatibleAPIMicroBlog::createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = apiRoot() + "/friendships/create.json";
+    params.insert( "user_id", user.id.toUtf8() );
+}
+
+void TwitterCompatibleAPIMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = apiRoot() + "/friendships/destroy.json";
+    params.insert( "user_id", user.id.toUtf8() );
+}
+
 void TwitterCompatibleAPIMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )
 {
     post.id = varmap["id"].toString();

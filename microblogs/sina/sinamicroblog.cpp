@@ -50,7 +50,7 @@ void SinaMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& param
 {
     switch ( t ) {
         case Home:
-            apiUrl = "http://api.t.sina.com.cn/statuses/friends_timeline.json";
+            apiUrl = "http://api.t.sina.com.cn/statuses/home_timeline.json";
             params.insert( "count", "20" );
             break;
         case Public:
@@ -104,6 +104,27 @@ void SinaMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamM
 {
     apiUrl = "http://api.t.sina.com.cn/statuses/repost.json";
     params.insert( "id", post.id.toUtf8() );
+}
+
+void SinaMicroBlog::createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://api.t.sina.com.cn/favorites/create.json";
+    params.insert( "id", post.id.toUtf8() );
+}
+
+void SinaMicroBlog::removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sina.com.cn/favorites/destroy/%1.json" ).arg( post.id );
+}
+
+void SinaMicroBlog::createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sina.com.cn/friendships/create/%1.json").arg( user.id );
+}
+
+void SinaMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sina.com.cn/friendships/destroy/%1.json").arg( user.id );
 }
 
 void SinaMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )

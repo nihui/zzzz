@@ -129,6 +129,34 @@ void TencentMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, Par
     params.insert( "reid", post.id.toUtf8() );
 }
 
+void TencentMicroBlog::createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://open.t.qq.com/api/fav/addt";
+    params.insert( "format", "json" );
+    params.insert( "id", post.id.toUtf8() );
+}
+
+void TencentMicroBlog::removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://open.t.qq.com/api/fav/delt";
+    params.insert( "format", "json" );
+    params.insert( "id", post.id.toUtf8() );
+}
+
+void TencentMicroBlog::createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://open.t.qq.com/api/friends/add";
+    params.insert( "format", "json" );
+    params.insert( "name", user.name.toUtf8() );
+}
+
+void TencentMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://open.t.qq.com/api/friends/del";
+    params.insert( "format", "json" );
+    params.insert( "name", user.name.toUtf8() );
+}
+
 void TencentMicroBlog::readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok )
 {
     QVariantMap rootmap = m_parser.parse( data, ok ).toMap();

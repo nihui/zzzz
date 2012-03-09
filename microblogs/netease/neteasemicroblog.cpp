@@ -120,6 +120,28 @@ void NeteaseMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, Par
     apiUrl = QString( "http://api.t.163.com/statuses/retweet/%1.json" ).arg( post.id );
 }
 
+void NeteaseMicroBlog::createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.163.com/favorites/create/%1.json" ).arg( post.id );
+}
+
+void NeteaseMicroBlog::removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.163.com/favorites/destroy/%1.json" ).arg( post.id );
+}
+
+void NeteaseMicroBlog::createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://api.t.163.com/friendships/create.json";
+    params.insert( "user_id", user.id.toUtf8() );
+}
+
+void NeteaseMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = "http://api.t.163.com/friendships/destroy.json";
+    params.insert( "user_id", user.id.toUtf8() );
+}
+
 void NeteaseMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )
 {
     post.id = varmap["id"].toString();

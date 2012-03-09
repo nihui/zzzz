@@ -21,6 +21,10 @@ class SinaMicroBlog : public Zzzz::MicroBlog
         virtual void createPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
         virtual void removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
         virtual void retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
+        virtual void createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
+        virtual void removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
+        virtual void createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params );
+        virtual void removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params );
         virtual void readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post );
         virtual void readUserFromJsonMap( const QVariantMap& varmap, Zzzz::User& user );
 };

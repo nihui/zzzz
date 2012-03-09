@@ -49,6 +49,12 @@ class ZZZZ_EXPORT MicroBlog : public Plugin
         virtual void createPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params ) = 0;
         virtual void removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params ) = 0;
         virtual void retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params ) = 0;
+        /// favorite part
+        virtual void createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params ) = 0;
+        virtual void removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params ) = 0;
+        /// friendship part
+        virtual void createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params ) = 0;
+        virtual void removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params ) = 0;
         /// data part
         virtual void readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok );
         virtual void readPostFromData( const QByteArray& data, Zzzz::Post& post, bool* ok );

@@ -102,6 +102,26 @@ void SohuMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamM
     apiUrl = QString( "http://api.t.sohu.com/statuses/transmit/%1.json" ).arg( post.id );
 }
 
+void SohuMicroBlog::createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sohu.com/favourites/create/%1.json" ).arg( post.id );
+}
+
+void SohuMicroBlog::removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sohu.com/favourites/destroy/%1.json" ).arg( post.id );
+}
+
+void SohuMicroBlog::createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sohu.com/friendships/create/%1.json" ).arg( user.id );
+}
+
+void SohuMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+{
+    apiUrl = QString( "http://api.t.sohu.com/friendships/destroy/%1.json" ).arg( user.id );
+}
+
 void SohuMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )
 {
 }
