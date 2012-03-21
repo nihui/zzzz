@@ -71,7 +71,7 @@ void TencentMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& pa
     }
 }
 
-void TencentMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+void TencentMicroBlog::updateUserTimeline( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
 {
     apiUrl = "http://open.t.qq.com/api/statuses/user_timeline";
     params.insert( "format", "json" );

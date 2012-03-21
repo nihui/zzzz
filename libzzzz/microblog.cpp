@@ -13,6 +13,14 @@ MicroBlog::~MicroBlog()
 {
 }
 
+void MicroBlog::getEmotion( QString& apiUrl, ParamMap& params )
+{
+}
+
+void MicroBlog::readEmotionFromData( const QByteArray& data, QStringList& list, bool* ok )
+{
+}
+
 void MicroBlog::readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok )
 {
     QVariantList list = m_parser.parse( data, ok ).toList();

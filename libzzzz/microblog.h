@@ -40,7 +40,7 @@ class ZZZZ_EXPORT MicroBlog : public Plugin
         virtual void oauthAccessToken( QString& apiUrl, HttpMethod& method, ParamMap& params ) = 0;
         /// timeline part
         virtual void updateTimeline( Timeline t, QString& apiUrl, ParamMap& params ) = 0;
-        virtual void updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user ) = 0;
+        virtual void updateUserTimeline( const Zzzz::User& user, QString& apiUrl, ParamMap& params ) = 0;
         virtual QStringList timelines() const = 0;
         virtual void updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params ) = 0;
         /// char limit
@@ -55,6 +55,9 @@ class ZZZZ_EXPORT MicroBlog : public Plugin
         /// friendship part
         virtual void createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params ) = 0;
         virtual void removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params ) = 0;
+        /// emotion part
+        virtual void getEmotion( QString& apiUrl, ParamMap& params );
+        virtual void readEmotionFromData( const QByteArray& data, QStringList& list, bool* ok );
         /// data part
         virtual void readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok );
         virtual void readPostFromData( const QByteArray& data, Zzzz::Post& post, bool* ok );

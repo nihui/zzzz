@@ -63,7 +63,7 @@ void NeteaseMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& pa
     }
 }
 
-void NeteaseMicroBlog::updateUserTimeline( QString& apiUrl, ParamMap& params, const Zzzz::User& user )
+void NeteaseMicroBlog::updateUserTimeline( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
 {
     apiUrl = "http://api.t.163.com/statuses/user_timeline.json";
     params.insert( "name", user.name.toUtf8().toPercentEncoding() );
