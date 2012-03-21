@@ -10,8 +10,6 @@
 #include <KLocale>
 #include <KMenu>
 
-#include <QButtonGroup>
-#include <QContextMenuEvent>
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -25,11 +23,7 @@ NavButtonsWidget::NavButtonsWidget( QWidget* parent )
     m_buttonLayout->setSpacing( 0 );
     setLayout( m_buttonLayout );
 
-    m_buttonGroup = new QButtonGroup( this );
-    m_buttonGroup->setExclusive( true );
-
-    connect( m_buttonGroup, SIGNAL(buttonClicked(int)),
-             this, SLOT(slotButtonClicked(int)) );
+    m_currentButton = 0;
 
     connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
              this, SLOT(slotGotAvatar(const QString&, const QImage&)) );
@@ -45,9 +39,34 @@ bool NavButtonsWidget::eventFilter( QObject* watched, QEvent* event )
 {
     QPushButton* button = qobject_cast<QPushButton*>(watched);
     if ( button ) {
+        if ( event->type() == QEvent::MouseButtonDblClick ) {
+            if ( button != m_currentButton ) {
+                // should not get here
+                return true;
+            }
+            if ( button->objectName().startsWith( "__" ) ) {
+                // never close internal timelines
+                return true;
+            }
+            emit timelineClosed( button->objectName() );
+            int layoutIndex = m_buttonLayout->indexOf( button );
+            m_buttonLayout->removeWidget( button );
+            delete button;
+            // switch to the next timeline if exist, the previous one otherwise
+            int toClickIndex = qMin( layoutIndex, m_buttonLayout->count() - 1 );
+            QWidget* bw = m_buttonLayout->itemAt( toClickIndex )->widget();
+            QPushButton* buttonToClick = static_cast<QPushButton*>(bw);
+            buttonToClick->setChecked( true );
+            m_currentButton = buttonToClick;
+            emit timelineClicked( m_currentButton->objectName() );
+            return true;
+        }
         if ( event->type() == QEvent::MouseButtonPress ) {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-            button->click();
+            m_currentButton->setChecked( false );
+            button->setChecked( true );
+            m_currentButton = button;
+            emit timelineClicked( m_currentButton->objectName() );
             m_buttonStart = button->pos();
             m_dragStart = mouseEvent->globalPos();
             return true;
@@ -77,11 +96,13 @@ bool NavButtonsWidget::eventFilter( QObject* watched, QEvent* event )
     return QObject::eventFilter( watched, event );
 }
 
-void NavButtonsWidget::addButton( const QString& timelineName, const QString& iconName )
+void NavButtonsWidget::addButton( const QString& timelineName, const QString& iconName, bool checked )
 {
     QPushButton* button = new QPushButton;
+    button->setObjectName( timelineName );
     button->setIconSize( QSize( 32, 32 ) );
     button->setCheckable( true );
+    button->setChecked( checked );
     button->setFlat( true );
     button->setFocusPolicy( Qt::NoFocus );
 
@@ -92,18 +113,15 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
 
     button->installEventFilter( this );
 
-    m_buttonGroup->addButton( button );
-
     m_buttonLayout->addWidget( button );
 
-    int id = m_buttonGroup->id( button );
-    m_buttonIdTimeline[ id ] = timelineName;
-
-    m_navButton[ timelineName ] = button;
+    if ( checked ) {
+        m_currentButton = button;
+    }
 
     if ( iconName.startsWith( "http://" ) ) {
         /// load icon from remote url
-        m_urlTimeline[ iconName ] = timelineName;
+        m_urlButton[ iconName ] = button;
         MediaFetcher::self()->requestAvatar( iconName );
     }
     else {
@@ -111,54 +129,43 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
     }
 }
 
-void NavButtonsWidget::clickButton( const QString& timelineName )
-{
-    m_navButton[ timelineName ]->click();
-}
-
 void NavButtonsWidget::wheelEvent( QWheelEvent* event )
 {
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
-    QAbstractButton* currentButton = m_buttonGroup->checkedButton();
-    int currentIndex = layout()->indexOf( currentButton );
-
-    int buttonCount = layout()->count();
-
+    int currentIndex = m_buttonLayout->indexOf( m_currentButton );
+    int buttonCount = m_buttonLayout->count();
     int toClickIndex = ( currentIndex - numSteps ) % buttonCount;
     if ( toClickIndex < 0 )
         toClickIndex += buttonCount;
 
-    QPushButton* buttonToClick = static_cast<QPushButton*>(layout()->itemAt( toClickIndex )->widget());
-    buttonToClick->click();
+    QWidget* bw = m_buttonLayout->itemAt( toClickIndex )->widget();
+    QPushButton* buttonToClick = static_cast<QPushButton*>(bw);
+
+    m_currentButton->setChecked( false );
+    buttonToClick->setChecked( true );
+
+    m_currentButton = buttonToClick;
+    emit timelineClicked( m_currentButton->objectName() );
 
     event->accept();
 }
 
-void NavButtonsWidget::slotButtonClicked( int id )
-{
-    emit timelineClicked( m_buttonIdTimeline[ id ] );
-}
-
 void NavButtonsWidget::slotGotAvatar( const QString& url, const QImage& image )
 {
-    if ( !m_urlTimeline.contains( url ) )
+    if ( !m_urlButton.contains( url ) )
         return;
 
-    QString timelineName = m_urlTimeline.take( url );
-    QPushButton* button = m_navButton[ timelineName ];
-
+    QPushButton* button = m_urlButton.take( url );
     button->setIcon( KIcon( QPixmap::fromImage( image ) ) );
 }
 
 void NavButtonsWidget::slotErrorAvatar( const QString& url )
 {
-    if ( !m_urlTimeline.contains( url ) )
+    if ( !m_urlButton.contains( url ) )
         return;
 
-    QString timelineName = m_urlTimeline.take( url );
-    QPushButton* button = m_navButton[ timelineName ];
-
+    QPushButton* button = m_urlButton.take( url );
     button->setIcon( KIcon( "image-missing" ) );
 }

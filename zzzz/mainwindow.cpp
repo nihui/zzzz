@@ -85,14 +85,14 @@ MainWindow::MainWindow()
     connect( m_composerWidget, SIGNAL(postComposed(const PostWrapper*)),
              this, SLOT(createPost(const PostWrapper*)) );
 
-    createTimelineWidget( "__HOME__", "user-home" );
-    createTimelineWidget( "__PUBLIC__", "applications-internet" );
-    createTimelineWidget( "__MENTIONS__", "face-angel" );
+    createTimelineWidget( "__HOME__", "user-home", true );
+    createTimelineWidget( "__PUBLIC__", "applications-internet", false );
+    createTimelineWidget( "__MENTIONS__", "face-angel", false );
 
     connect( m_buttonsWidget, SIGNAL(timelineClicked(const QString&)),
              this, SLOT(setCurrentTimeline(const QString&)) );
-
-    m_buttonsWidget->clickButton( "__HOME__" );
+    connect( m_buttonsWidget, SIGNAL(timelineClosed(const QString&)),
+             this, SLOT(closeTimeline(const QString&)) );
 
     setupActions();
 
@@ -119,6 +119,13 @@ MainWindow::~MainWindow()
 void MainWindow::setCurrentTimeline( const QString& timelineName )
 {
     m_stackedLayout->setCurrentWidget( m_timelineWidget[ timelineName ] );
+}
+
+void MainWindow::closeTimeline( const QString& timelineName )
+{
+    TimelineWidget* tw = m_timelineWidget.take( timelineName );
+    m_stackedLayout->removeWidget( tw );
+    delete tw;
 }
 
 void MainWindow::slotConfigure()
@@ -274,7 +281,7 @@ void MainWindow::slotUpdateTimeline( KJob* job )
             iconName = postlist.first().user.profileImageUrl;
         }
         qWarning() << "create timeline widget" << timeline << iconName;
-        createTimelineWidget( timeline, iconName );
+        createTimelineWidget( timeline, iconName, false );
         tw = m_timelineWidget.value( timeline );
     }
 
@@ -422,7 +429,7 @@ void MainWindow::setupActions()
     connect( actUpdate, SIGNAL(triggered(bool)), this, SLOT(updateTimelines()) );
 }
 
-void MainWindow::createTimelineWidget( const QString& timelineName, const QString& iconName )
+void MainWindow::createTimelineWidget( const QString& timelineName, const QString& iconName, bool checked )
 {
     TimelineWidget* tw = new TimelineWidget;
     m_timelineWidget[ timelineName ] = tw;
@@ -436,5 +443,5 @@ void MainWindow::createTimelineWidget( const QString& timelineName, const QStrin
              this, SLOT(updateUserTimeline(const PostWrapper*,const QString&)) );
 
     m_stackedLayout->addWidget( tw );
-    m_buttonsWidget->addButton( timelineName, iconName );
+    m_buttonsWidget->addButton( timelineName, iconName, checked );
 }

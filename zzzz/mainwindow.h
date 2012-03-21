@@ -22,6 +22,7 @@ class MainWindow : public KXmlGuiWindow
 
     private Q_SLOTS:
         void setCurrentTimeline( const QString& timelineName );
+        void closeTimeline( const QString& timelineName );
         void slotConfigure();
         void updateTimelines();
 
@@ -34,7 +35,7 @@ class MainWindow : public KXmlGuiWindow
         void retweetPost( const PostWrapper* post );
     private:
         void setupActions();
-        void createTimelineWidget( const QString& timelineName, const QString& iconName );
+        void createTimelineWidget( const QString& timelineName, const QString& iconName, bool checked );
     private:
         NavButtonsWidget* m_buttonsWidget;
         QStackedLayout* m_stackedLayout;
