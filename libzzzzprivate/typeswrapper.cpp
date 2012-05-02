@@ -32,6 +32,7 @@ PostWrapper::PostWrapper( const Zzzz::Post& post )
 : d(new PostWrapperData)
 {
     d->post = post;
+    d->zzzztext = post.text;
 }
 
 PostWrapper::PostWrapper( const PostWrapper& other )

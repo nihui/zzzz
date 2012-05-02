@@ -47,15 +47,18 @@ QString ThemeEngine::render( const QList<PostWrapper>& posts ) const
         post.setReplyLink( QString( "zzzz:reply:%1" ).arg( i ) );
         post.setRetweetLink( QString( "zzzz:retweet:%1" ).arg( i ) );
 
-        QString zzzztext = post.text();
-        // @username
-        QRegExp usernameRegex = post.myAccount()->microblog()->usernameMatch();
-        zzzztext.replace( usernameRegex, QString( "<a href=\"zzzz:username:%1:\\1\">@\\1</a>" ).arg( i ) );
-        // #topic
-        QRegExp topicRegex = post.myAccount()->microblog()->topicMatch();
-        zzzztext.replace( topicRegex, QString( "<a href=\"zzzz:topic:%1:\\1\">#\\1#</a>" ).arg( i ) );
+        Account* account = post.myAccount();
+        if (account) {
+            QString zzzztext = post.text();
+            // @username
+            QRegExp usernameRegex = account->microblog()->usernameMatch();
+            zzzztext.replace( usernameRegex, QString( "<a href=\"zzzz:username:%1:\\1\">@\\1</a>" ).arg( i ) );
+            // #topic
+            QRegExp topicRegex = account->microblog()->topicMatch();
+            zzzztext.replace( topicRegex, QString( "<a href=\"zzzz:topic:%1:\\1\">#\\1#</a>" ).arg( i ) );
 
-        post.setZzzztext( zzzztext );
+            post.setZzzztext( zzzztext );
+        }
 
         ++i;
 

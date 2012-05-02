@@ -1,0 +1,15 @@
+[Desktop Entry]
+Icon=tools-wizard
+Type=Service
+X-KDE-ServiceTypes=KCModule
+
+X-KDE-Library=kcm_zzzz_themeconfig
+X-KDE-FactoryName=ZzzzThemeConfigFactory
+X-KDE-ParentApp=zzzz
+X-KDE-ParentComponents=zzzz
+X-KDE-Weight=20
+
+Name=Themes
+Name[zh_CN]=主题
+Comment=Manage Themes
+Comment[zh_CN]=管理主题
