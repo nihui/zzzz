@@ -82,8 +82,8 @@ MainWindow::MainWindow()
 
     m_composerWidget = new ComposerWidget;
     mainLayout->addWidget( m_composerWidget );
-    connect( m_composerWidget, SIGNAL(postComposed(const PostWrapper*)),
-             this, SLOT(createPost(const PostWrapper*)) );
+    connect( m_composerWidget, SIGNAL(postComposed(const PostWrapper&)),
+             this, SLOT(createPost(const PostWrapper&)) );
 
     createTimelineWidget( "__HOME__", "user-home", true );
     createTimelineWidget( "__PUBLIC__", "applications-internet", false );
@@ -196,9 +196,9 @@ void MainWindow::updateTimeline( const QString& timelineName )
     }
 }
 
-void MainWindow::updateUserTimeline( const PostWrapper* post )
+void MainWindow::updateUserTimeline( const PostWrapper& post )
 {
-    Account* account = post->myAccount;
+    Account* account = post.myAccount();
     if ( !account || !account->isAuthorized() ) {
         return;
     }
@@ -208,7 +208,7 @@ void MainWindow::updateUserTimeline( const PostWrapper* post )
     QString apiUrl;
     Zzzz::MicroBlog::ParamMap params;
     /// update user timeline using microblog for account
-    microblog->updateUserTimeline( post->m_post.user, apiUrl, params );
+    microblog->updateUserTimeline( post.internalPost().user, apiUrl, params );
 
     KUrl url( apiUrl );
     QByteArray hs = account->createParametersString( apiUrl, Zzzz::MicroBlog::GET, params );
@@ -218,13 +218,13 @@ void MainWindow::updateUserTimeline( const PostWrapper* post )
     job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
     connect( job, SIGNAL(result(KJob*)), this, SLOT(slotUpdateTimeline(KJob*)) );
     m_jobAccount[ job ] = account;
-    m_jobTimeline[ job ] = post->m_post.user.screenName + ' ' + post->m_post.user.profileImageUrl;
+    m_jobTimeline[ job ] = post.userScreenName() + ' ' + post.userProfileImageUrl();
     job->start();
 }
 
-void MainWindow::updateUserTimeline( const PostWrapper* post, const QString& username )
+void MainWindow::updateUserTimeline( const PostWrapper& post, const QString& username )
 {
-    Account* account = post->myAccount;
+    Account* account = post.myAccount();
     if ( !account || !account->isAuthorized() ) {
         return;
     }
@@ -289,8 +289,8 @@ void MainWindow::slotUpdateTimeline( KJob* job )
     QList<Zzzz::Post>::ConstIterator end = postlist.constEnd();
     while ( it != end ) {
         Zzzz::Post p = *it;
-        PostWrapper* post = new PostWrapper( p );
-        post->myAccount = account;
+        PostWrapper post( p );
+        post.setMyAccount( account );
         /// update widget
 //         qWarning() << "got new post";
         tw->appendPost( post );
@@ -299,9 +299,9 @@ void MainWindow::slotUpdateTimeline( KJob* job )
     tw->updateHTML();
 }
 
-void MainWindow::createPost( const PostWrapper* post )
+void MainWindow::createPost( const PostWrapper& post )
 {
-    Account* account = post->myAccount;
+    Account* account = post.myAccount();
     if ( account ) {
         /// use the specified account for posting
         if ( !account->isAuthorized() )
@@ -310,7 +310,7 @@ void MainWindow::createPost( const PostWrapper* post )
         /// create post for microblog service
         QString apiUrl;
         Zzzz::MicroBlog::ParamMap params;
-        microblog->createPost( post->m_post, apiUrl, params );
+        microblog->createPost( post.internalPost(), apiUrl, params );
 
         KUrl url( apiUrl );
         QByteArray rc = account->createParametersString( apiUrl, Zzzz::MicroBlog::POST, params );
@@ -319,8 +319,6 @@ void MainWindow::createPost( const PostWrapper* post )
         job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
         m_jobAccount[ job ] = account;
         m_jobPost[ job ] = post;
-        int& refs = m_jobPostRefs[ post ];
-        refs++;
         connect( job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)) );
         job->start();
     }
@@ -339,7 +337,7 @@ void MainWindow::createPost( const PostWrapper* post )
             /// create post for microblog service
             QString apiUrl;
             Zzzz::MicroBlog::ParamMap params;
-            microblog->createPost( post->m_post, apiUrl, params );
+            microblog->createPost( post.internalPost(), apiUrl, params );
 
             KUrl url( apiUrl );
             QByteArray rc = account->createParametersString( apiUrl, Zzzz::MicroBlog::POST, params );
@@ -348,8 +346,6 @@ void MainWindow::createPost( const PostWrapper* post )
             job->addMetaData( "content-type", "Content-Type: application/x-www-form-urlencoded" );
             m_jobAccount[ job ] = account;
             m_jobPost[ job ] = post;
-            int& refs = m_jobPostRefs[ post ];
-            refs++;
             connect( job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)) );
             job->start();
         }
@@ -364,21 +360,12 @@ void MainWindow::slotCreatePost( KJob* job )
     }
 
     Account* account = m_jobAccount.take( job );
-    const PostWrapper* refPost = m_jobPost.take( job );
+    const PostWrapper& refPost = m_jobPost.take( job );
     KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
     qWarning() << QString::fromUtf8( j->data() );
     Zzzz::MicroBlog* microblog = account->microblog();
 
-    Zzzz::Post p = refPost->m_post;
-
-    if ( m_jobPostRefs.contains( refPost ) ) {
-        int& refs = m_jobPostRefs[ refPost ];
-        refs--;
-        if (refs == 0) {
-            m_jobPostRefs.remove( refPost );
-            delete refPost;
-        }
-    }
+    Zzzz::Post p = refPost.internalPost();
 
     bool ok;
     microblog->readPostFromData( j->data(), p, &ok );
@@ -387,8 +374,8 @@ void MainWindow::slotCreatePost( KJob* job )
         return;
     }
 
-    PostWrapper* post = new PostWrapper( p );
-    post->myAccount = account;
+    PostWrapper post( p );
+    post.setMyAccount( account );
     /// update widget
     qWarning() << "created new post";
     TimelineWidget* tw = m_timelineWidget.value( "__HOME__" );
@@ -396,9 +383,9 @@ void MainWindow::slotCreatePost( KJob* job )
     tw->updateHTML();
 }
 
-void MainWindow::retweetPost( const PostWrapper* post )
+void MainWindow::retweetPost( const PostWrapper& post )
 {
-    Account* account = post->myAccount;
+    Account* account = post.myAccount();
     /// use the specified account for posting
     if ( !account->isAuthorized() )
         return;
@@ -407,7 +394,7 @@ void MainWindow::retweetPost( const PostWrapper* post )
     /// retweet post for microblog service
     QString apiUrl;
     Zzzz::MicroBlog::ParamMap params;
-    microblog->retweetPost( post->m_post, apiUrl, params );
+    microblog->retweetPost( post.internalPost(), apiUrl, params );
 
     QByteArray rc = account->createParametersString( apiUrl, Zzzz::MicroBlog::POST, params );
 
@@ -433,14 +420,14 @@ void MainWindow::createTimelineWidget( const QString& timelineName, const QStrin
 {
     TimelineWidget* tw = new TimelineWidget;
     m_timelineWidget[ timelineName ] = tw;
-    connect( tw, SIGNAL(userClicked(const PostWrapper*)),
-             this, SLOT(updateUserTimeline(const PostWrapper*)) );
-    connect( tw, SIGNAL(replyClicked(const PostWrapper*)),
-             m_composerWidget, SLOT(composeReply(const PostWrapper*)) );
-    connect( tw, SIGNAL(retweetClicked(const PostWrapper*)),
-             this, SLOT(retweetPost(const PostWrapper*)) );
-    connect( tw, SIGNAL(usernameClicked(const PostWrapper*,const QString&)),
-             this, SLOT(updateUserTimeline(const PostWrapper*,const QString&)) );
+    connect( tw, SIGNAL(userClicked(const PostWrapper&)),
+             this, SLOT(updateUserTimeline(const PostWrapper&)) );
+    connect( tw, SIGNAL(replyClicked(const PostWrapper&)),
+             m_composerWidget, SLOT(composeReply(const PostWrapper&)) );
+    connect( tw, SIGNAL(retweetClicked(const PostWrapper&)),
+             this, SLOT(retweetPost(const PostWrapper&)) );
+    connect( tw, SIGNAL(usernameClicked(const PostWrapper&,const QString&)),
+             this, SLOT(updateUserTimeline(const PostWrapper&,const QString&)) );
 
     m_stackedLayout->addWidget( tw );
     m_buttonsWidget->addButton( timelineName, iconName, checked );

@@ -14,9 +14,9 @@ class ComposerWidget : public KTextEdit
         virtual ~ComposerWidget();
         void setCharLimit( int limit );
     Q_SIGNALS:
-        void postComposed( const PostWrapper* post );
+        void postComposed( const PostWrapper& post );
     public Q_SLOTS:
-        void composeReply( const PostWrapper* post );
+        void composeReply( const PostWrapper& post );
     protected:
         virtual void focusInEvent( QFocusEvent* event );
         virtual void focusOutEvent( QFocusEvent* event );

@@ -25,6 +25,7 @@ class SinaMicroBlog : public Zzzz::MicroBlog
         virtual void removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
         virtual void createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params );
         virtual void removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params );
+        virtual QRegExp topicMatch() const;
         virtual void readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post );
         virtual void readUserFromJsonMap( const QVariantMap& varmap, Zzzz::User& user );
 };

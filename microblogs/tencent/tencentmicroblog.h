@@ -25,6 +25,7 @@ class TencentMicroBlog : public Zzzz::MicroBlog
         virtual void removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params );
         virtual void createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params );
         virtual void removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params );
+        virtual QRegExp usernameMatch() const;
         virtual void readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok );
     protected:
         virtual void readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post );

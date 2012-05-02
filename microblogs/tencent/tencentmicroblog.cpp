@@ -157,6 +157,11 @@ void TencentMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl
     params.insert( "name", user.name.toUtf8() );
 }
 
+QRegExp TencentMicroBlog::usernameMatch() const
+{
+    return QRegExp( "@([a-zA-Z0-9]+)", Qt::CaseInsensitive );
+}
+
 void TencentMicroBlog::readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok )
 {
     QVariantMap rootmap = m_parser.parse( data, ok ).toMap();

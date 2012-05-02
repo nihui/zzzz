@@ -15,17 +15,17 @@ class TimelineWidget : public QWidget
     public:
         explicit TimelineWidget( QWidget* parent = 0 );
         virtual ~TimelineWidget();
-        void appendPost( const PostWrapper* post );
-        void prependPost( const PostWrapper* post );
+        void appendPost( const PostWrapper& post );
+        void prependPost( const PostWrapper& post );
         void clearPosts();
     public Q_SLOTS:
         void updateHTML();
     Q_SIGNALS:
-        void userClicked( const PostWrapper* post );
-        void replyClicked( const PostWrapper* post );
-        void retweetClicked( const PostWrapper* post );
-        void usernameClicked( const PostWrapper* post, const QString& username );
-        void topicClicked( const PostWrapper* post, const QString& topic );
+        void userClicked( const PostWrapper& post );
+        void replyClicked( const PostWrapper& post );
+        void retweetClicked( const PostWrapper& post );
+        void usernameClicked( const PostWrapper& post, const QString& username );
+        void topicClicked( const PostWrapper& post, const QString& topic );
     private Q_SLOTS:
         void refresh();
         void slotAccountRemoved( const QString& alias, const Account* oldAccount );
@@ -33,11 +33,11 @@ class TimelineWidget : public QWidget
         void slotErrorMedia( const QString& url );
         void slotAnchorClicked( const QUrl& url );
     private:
-        bool postExists( const PostWrapper* post );
+        bool postExists( const PostWrapper& post );
         void delayedRefresh();
         void handleUrlString( const QString& url );
     private:
-        QList<const PostWrapper*> m_posts;
+        QList<PostWrapper> m_posts;
 
         QString m_html;
         QTextBrowser* m_textbrowser;

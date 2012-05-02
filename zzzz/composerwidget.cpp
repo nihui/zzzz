@@ -40,11 +40,11 @@ void ComposerWidget::setCharLimit( int limit )
     slotTextChanged();
 }
 
-void ComposerWidget::composeReply( const PostWrapper* post )
+void ComposerWidget::composeReply( const PostWrapper& post )
 {
-    m_replyAccount = post->myAccount;
-    m_replyToStatusId = post->m_post.id;
-    setPlainText( "@" + post->m_post.user.screenName + " " + toPlainText() );
+    m_replyAccount = post.myAccount();
+    m_replyToStatusId = post.id();
+    setPlainText( "@" + post.userScreenName() + " " + toPlainText() );
     setFocus();
 }
 
@@ -68,10 +68,11 @@ void ComposerWidget::keyPressEvent( QKeyEvent* event )
         QString text = toPlainText();
         if ( !text.isEmpty() ) {
             kWarning() << "enter pressed" << text;
-            PostWrapper* post = new PostWrapper( Zzzz::Post() );
-            post->myAccount = m_replyAccount;
-            post->m_post.replyToStatusId = m_replyToStatusId;
-            post->m_post.text = text;
+            Zzzz::Post p;
+            p.replyToStatusId = m_replyToStatusId;
+            p.text = text;
+            PostWrapper post( p );
+            post.setMyAccount( m_replyAccount );
             emit postComposed( post );
             clear();
             m_replyAccount = 0;

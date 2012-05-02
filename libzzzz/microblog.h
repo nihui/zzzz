@@ -3,6 +3,7 @@
 
 #include "plugin.h"
 
+#include <QRegExp>
 #include <qjson/parser.h>
 
 namespace Zzzz {
@@ -58,6 +59,10 @@ class ZZZZ_EXPORT MicroBlog : public Plugin
         /// emotion part
         virtual void getEmotion( QString& apiUrl, ParamMap& params );
         virtual void readEmotionFromData( const QByteArray& data, QStringList& list, bool* ok );
+        /// post content part
+        virtual QRegExp usernameMatch() const;
+        virtual QRegExp topicMatch() const;
+        virtual QRegExp emotionMatch() const;
         /// data part
         virtual void readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok );
         virtual void readPostFromData( const QByteArray& data, Zzzz::Post& post, bool* ok );

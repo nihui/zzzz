@@ -127,6 +127,11 @@ void SinaMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, P
     apiUrl = QString( "http://api.t.sina.com.cn/friendships/destroy/%1.json").arg( user.id );
 }
 
+QRegExp SinaMicroBlog::topicMatch() const
+{
+    return QRegExp( "#([^#]+)#", Qt::CaseInsensitive );
+}
+
 void SinaMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )
 {
     post.id = varmap["id"].toString();

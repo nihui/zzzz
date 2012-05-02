@@ -17,6 +17,21 @@ void MicroBlog::getEmotion( QString& apiUrl, ParamMap& params )
 {
 }
 
+QRegExp MicroBlog::usernameMatch() const
+{
+    return QRegExp( "@([^\\s\\W]+)", Qt::CaseInsensitive );
+}
+
+QRegExp MicroBlog::topicMatch() const
+{
+    return QRegExp( "#([^\\s\\W]+)#", Qt::CaseInsensitive );
+}
+
+QRegExp MicroBlog::emotionMatch() const
+{
+    return QRegExp();
+}
+
 void MicroBlog::readEmotionFromData( const QByteArray& data, QStringList& list, bool* ok )
 {
 }

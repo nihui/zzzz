@@ -5,6 +5,7 @@
 
 #include "accountmanager.h"
 #include "mediafetcher.h"
+#include "account.h"
 
 #include <types.h>
 
@@ -22,9 +23,9 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-static bool postWrapperGreaterThan( const PostWrapper*& p1, const PostWrapper*& p2 )
+static bool postWrapperGreaterThan( const PostWrapper& p1, const PostWrapper& p2 )
 {
-    return p1->m_post.creationDateTime > p2->m_post.creationDateTime;
+    return p1.creationDateTime() > p2.creationDateTime();
 }
 
 TimelineWidget::TimelineWidget( QWidget* parent )
@@ -65,29 +66,24 @@ TimelineWidget::~TimelineWidget()
     clearPosts();
 }
 
-void TimelineWidget::appendPost( const PostWrapper* post )
+void TimelineWidget::appendPost( const PostWrapper& post )
 {
-    if ( postExists( post ) ) {
-        delete post;
+    if ( postExists( post ) )
         return;
-    }
 
     m_posts.append( post );
 }
 
-void TimelineWidget::prependPost( const PostWrapper* post )
+void TimelineWidget::prependPost( const PostWrapper& post )
 {
-    if ( postExists( post ) ) {
-        delete post;
+    if ( postExists( post ) )
         return;
-    }
 
     m_posts.prepend( post );
 }
 
 void TimelineWidget::clearPosts()
 {
-    qDeleteAll( m_posts );
     m_posts.clear();
 }
 
@@ -98,38 +94,16 @@ void TimelineWidget::updateHTML()
     QSet<QString> avatarUrls;
     QSet<QString> imageUrls;
 
-    QVariantList postList;
-
     qSort( m_posts.begin(), m_posts.end(), postWrapperGreaterThan );
 
-    QList<const PostWrapper*>::ConstIterator it = m_posts.constBegin();
-    QList<const PostWrapper*>::ConstIterator end = m_posts.constEnd();
+    QList<PostWrapper>::ConstIterator it = m_posts.constBegin();
+    QList<PostWrapper>::ConstIterator end = m_posts.constEnd();
     int i = 0;
     while ( it != end ) {
-        const PostWrapper* post = *it;
-
-        avatarUrls.insert( post->m_post.user.profileImageUrl );
-        imageUrls.insert( post->m_post.thumbnailPic );
-
-        post->m_userLink = QString( "zzzz:user:%1" ).arg( i );
-        post->m_replyLink = QString( "zzzz:reply:%1" ).arg( i );
-        post->m_retweetLink = QString( "zzzz:retweet:%1" ).arg( i );
-
-        post->m_zzzztext = post->m_post.text;
-        // @username
-        static QRegExp usernameRegex( "@([^\\s\\W]+)", Qt::CaseInsensitive );
-        post->m_zzzztext.replace( usernameRegex, QString( "<a href=\"zzzz:username:%1:\\1\">@\\1</a>" ).arg( i ) );
-        // #topic
-        static QRegExp topicRegex( "#([^\\s\\W]+)#", Qt::CaseInsensitive );
-        post->m_zzzztext.replace( topicRegex, QString( "<a href=\"zzzz:topic:%1:\\1\">#\\1#</a>" ).arg( i ) );
-
-        ++i;
-
+        const PostWrapper& post = *it;
+        avatarUrls.insert( post.userProfileImageUrl() );
+        imageUrls.insert( post.thumbnailPic() );
         ++it;
-
-        const QObject* postWrapper = post;
-        postList.append( QVariant::fromValue( const_cast<QObject*>(postWrapper) ) );
-//         kWarning() << p.user.profileImageUrl;
     }
 
     QImage none = KIcon("image-missing").pixmap( 48 ).toImage();
@@ -140,7 +114,7 @@ void TimelineWidget::updateHTML()
         m_textbrowser->document()->addResource( QTextDocument::ImageResource, url, none );
     }
 
-    m_html = ThemeEngine::self()->render( postList );
+    m_html = ThemeEngine::self()->render( m_posts );
 
     m_textbrowser->setHtml( m_html );
 
@@ -159,14 +133,13 @@ void TimelineWidget::refresh()
 
 void TimelineWidget::slotAccountRemoved( const QString& alias, const Account* oldAccount )
 {
-    QList<const PostWrapper*>::Iterator it = m_posts.begin();
-    QList<const PostWrapper*>::Iterator end = m_posts.end();
+    QList<PostWrapper>::Iterator it = m_posts.begin();
+    QList<PostWrapper>::Iterator end = m_posts.end();
     while ( it != end ) {
-        const PostWrapper* post = *it;
-        if ( post->myAccount == oldAccount ) {
+        const PostWrapper& post = *it;
+        if ( post.myAccount() == oldAccount ) {
             it = m_posts.erase( it );
             end = m_posts.end();
-            delete post;
         }
         else {
             ++it;
@@ -193,16 +166,15 @@ void TimelineWidget::slotAnchorClicked( const QUrl& url )
     handleUrlString( url.toString() );
 }
 
-bool TimelineWidget::postExists( const PostWrapper* post )
+bool TimelineWidget::postExists( const PostWrapper& post )
 {
-    QList<const PostWrapper*>::ConstIterator it = m_posts.constBegin();
-    QList<const PostWrapper*>::ConstIterator end = m_posts.constEnd();
+    QList<PostWrapper>::ConstIterator it = m_posts.constBegin();
+    QList<PostWrapper>::ConstIterator end = m_posts.constEnd();
     while ( it != end ) {
-        const PostWrapper* p = *it;
+        const PostWrapper& p = *it;
         ++it;
 
-        if ( p->myAccount == post->myAccount
-            && p->m_post.id == post->m_post.id ) {
+        if ( p.myAccount() == post.myAccount() && p.id() == post.id() ) {
             return true;
         }
     }

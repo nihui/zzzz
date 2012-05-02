@@ -27,12 +27,12 @@ class MainWindow : public KXmlGuiWindow
         void updateTimelines();
 
         void updateTimeline( const QString& timelineName );
-        void updateUserTimeline( const PostWrapper* post );
-        void updateUserTimeline( const PostWrapper* post, const QString& username );
+        void updateUserTimeline( const PostWrapper& post );
+        void updateUserTimeline( const PostWrapper& post, const QString& username );
         void slotUpdateTimeline( KJob* job );
-        void createPost( const PostWrapper* post );
+        void createPost( const PostWrapper& post );
         void slotCreatePost( KJob* job );
-        void retweetPost( const PostWrapper* post );
+        void retweetPost( const PostWrapper& post );
     private:
         void setupActions();
         void createTimelineWidget( const QString& timelineName, const QString& iconName, bool checked );
@@ -45,8 +45,7 @@ class MainWindow : public KXmlGuiWindow
         ComposerWidget* m_composerWidget;
         QHash<KJob*, Account*> m_jobAccount;
         QHash<KJob*, QString> m_jobTimeline;
-        QHash<KJob*, const PostWrapper*> m_jobPost;
-        QHash<const PostWrapper*, int> m_jobPostRefs;
+        QHash<KJob*, PostWrapper> m_jobPost;
         KSettings::Dialog* m_settingsDialog;
 };
 
