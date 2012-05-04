@@ -8,7 +8,7 @@ MediaFetcher* MediaFetcher::m_self = 0;
 
 MediaFetcher* MediaFetcher::self()
 {
-    if ( !m_self )
+    if (!m_self)
         m_self = new MediaFetcher;
     return m_self;
 }
@@ -16,7 +16,7 @@ MediaFetcher* MediaFetcher::self()
 MediaFetcher::MediaFetcher()
 {
     // 20MB
-    m_cache = new KImageCache("zzzz-media", 20*1024*1024);
+    m_cache = new KImageCache("zzzz-media", 20 * 1024 * 1024);
     m_cache->setEvictionPolicy(KSharedDataCache::EvictLeastRecentlyUsed);
     m_cache->setPixmapCaching(true);
 }

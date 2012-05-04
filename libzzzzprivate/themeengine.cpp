@@ -9,7 +9,7 @@ ThemeEngine* ThemeEngine::m_self = 0;
 
 ThemeEngine* ThemeEngine::self()
 {
-    if ( !m_self )
+    if (!m_self)
         m_self = new ThemeEngine;
     return m_self;
 }
@@ -19,13 +19,13 @@ ThemeEngine::ThemeEngine()
     Grantlee::registerMetaType<PostWrapper>();
 
     m_engine = new Grantlee::Engine;
-    Grantlee::FileSystemTemplateLoader::Ptr loader( new Grantlee::FileSystemTemplateLoader() );
+    Grantlee::FileSystemTemplateLoader::Ptr loader(new Grantlee::FileSystemTemplateLoader());
 
     KStandardDirs ksd;
-    QStringList templateDirs = ksd.findDirs( "data", "zzzz/themes" );
+    QStringList templateDirs = ksd.findDirs("data", "zzzz/themes");
 // kWarning() << templateDirs;
-    loader->setTemplateDirs( templateDirs );
-    m_engine->addTemplateLoader( loader );
+    loader->setTemplateDirs(templateDirs);
+    m_engine->addTemplateLoader(loader);
 }
 
 ThemeEngine::~ThemeEngine()
@@ -44,19 +44,19 @@ QString ThemeEngine::render(const PostWrapper& post) const
         QString zzzztext = post.text();
         // @username
         QRegExp usernameRegex = account->microblog()->usernameMatch();
-        zzzztext.replace( usernameRegex, "<a href=\"zzzz:username:\\1\">@\\1</a>" );
+        zzzztext.replace(usernameRegex, "<a href=\"zzzz:username:\\1\">@\\1</a>");
         // #topic
         QRegExp topicRegex = account->microblog()->topicMatch();
-        zzzztext.replace( topicRegex, "<a href=\"zzzz:topic:\\1\">#\\1#</a>" );
+        zzzztext.replace(topicRegex, "<a href=\"zzzz:topic:\\1\">#\\1#</a>");
 
-        post.setZzzztext( zzzztext );
+        post.setZzzztext(zzzztext);
     }
 
     QVariantHash mapping;
     mapping.insert("post", QVariant::fromValue(post));
 
     Grantlee::Context c(mapping);
-    Grantlee::Template t = m_engine->loadByName( "simple.html" );
+    Grantlee::Template t = m_engine->loadByName("simple.html");
 
     return t->render(&c);
 }

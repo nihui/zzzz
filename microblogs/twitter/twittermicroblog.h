@@ -5,12 +5,12 @@
 
 class TwitterMicroBlog : public Zzzz::TwitterCompatibleAPIMicroBlog
 {
-    public:
-        explicit TwitterMicroBlog( QObject* parent, const QVariantList& args );
-        virtual ~TwitterMicroBlog();
-        virtual QString apiRoot() const;
-        virtual QByteArray oauthConsumerKey() const;
-        virtual QByteArray oauthConsumerSecret() const;
+public:
+    explicit TwitterMicroBlog(QObject* parent, const QVariantList& args);
+    virtual ~TwitterMicroBlog();
+    virtual QString apiRoot() const;
+    virtual QByteArray oauthConsumerKey() const;
+    virtual QByteArray oauthConsumerSecret() const;
 };
 
 #endif // TWITTERMICROBLOG_H

@@ -16,107 +16,106 @@
 
 #include "typeswrapper.h"
 
-ComposerWidget::ComposerWidget( QWidget* parent )
-: KTextEdit(parent)
+ComposerWidget::ComposerWidget(QWidget* parent)
+    : KTextEdit(parent)
 {
-    setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Preferred );
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     m_replyAccount = 0;
 
-    setEditing( false );
+    setEditing(false);
 
     m_limit = 150;
 
-    connect( this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()) );
+    connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
 }
 
 ComposerWidget::~ComposerWidget()
 {
 }
 
-void ComposerWidget::setCharLimit( int limit )
+void ComposerWidget::setCharLimit(int limit)
 {
     m_limit = limit;
     slotTextChanged();
 }
 
-void ComposerWidget::composeReply( const PostWrapper& post )
+void ComposerWidget::composeReply(const PostWrapper& post)
 {
     m_replyAccount = post.myAccount();
     m_replyToStatusId = post.id();
-    setPlainText( "@" + post.userScreenName() + " " + toPlainText() );
+    setPlainText("@" + post.userScreenName() + " " + toPlainText());
     setFocus();
 }
 
-void ComposerWidget::focusInEvent( QFocusEvent* event )
+void ComposerWidget::focusInEvent(QFocusEvent* event)
 {
-    setEditing( true );
-    KTextEdit::focusInEvent( event );
+    setEditing(true);
+    KTextEdit::focusInEvent(event);
 }
 
-void ComposerWidget::focusOutEvent( QFocusEvent* event )
+void ComposerWidget::focusOutEvent(QFocusEvent* event)
 {
-    if ( event->reason() != Qt::PopupFocusReason
-        && event->reason() != Qt::ActiveWindowFocusReason )
-        setEditing( false );
-    KTextEdit::focusInEvent( event );
+    if (event->reason() != Qt::PopupFocusReason
+            && event->reason() != Qt::ActiveWindowFocusReason)
+        setEditing(false);
+    KTextEdit::focusInEvent(event);
 }
 
-void ComposerWidget::keyPressEvent( QKeyEvent* event )
+void ComposerWidget::keyPressEvent(QKeyEvent* event)
 {
-    if ( event->key() == Qt::Key_Return ) {
+    if (event->key() == Qt::Key_Return) {
         QString text = toPlainText();
-        if ( !text.isEmpty() ) {
+        if (!text.isEmpty()) {
             kWarning() << "enter pressed" << text;
             Zzzz::Post p;
             p.replyToStatusId = m_replyToStatusId;
             p.text = text;
-            PostWrapper post( p );
-            post.setMyAccount( m_replyAccount );
-            emit postComposed( post );
+            PostWrapper post(p);
+            post.setMyAccount(m_replyAccount);
+            emit postComposed(post);
             clear();
             m_replyAccount = 0;
             m_replyToStatusId.clear();
-            setEditing( false );
+            setEditing(false);
         }
         return;
     }
-    KTextEdit::keyPressEvent( event );
+    KTextEdit::keyPressEvent(event);
 }
 
-void ComposerWidget::resizeEvent( QResizeEvent* event )
+void ComposerWidget::resizeEvent(QResizeEvent* event)
 {
     slotTextChanged();
-    KTextEdit::resizeEvent( event );
+    KTextEdit::resizeEvent(event);
 }
 
 void ComposerWidget::slotTextChanged()
 {
     int num = m_limit - toPlainText().size();
-    QPixmap pixmap( width(), height() );
-    pixmap.fill( Qt::white );
-    QPainter p( &pixmap );
+    QPixmap pixmap(width(), height());
+    pixmap.fill(Qt::white);
+    QPainter p(&pixmap);
     QFont font = p.font();
-    font.setPointSize( 20 );
-    p.setFont( font );
+    font.setPointSize(20);
+    p.setFont(font);
     QPen pen = p.pen();
-    if ( num < 0 )
-        pen.setColor( QColor( 255, 100, 100 ) );
+    if (num < 0)
+        pen.setColor(QColor(255, 100, 100));
     else
-        pen.setColor( QColor( 100, 200, 100 ) );
-    p.setPen( pen );
-    p.drawText( 0, 0, width() - 10, height(), Qt::AlignBottom | Qt::AlignRight, QString::number( m_limit - toPlainText().size() ) );
+        pen.setColor(QColor(100, 200, 100));
+    p.setPen(pen);
+    p.drawText(0, 0, width() - 10, height(), Qt::AlignBottom | Qt::AlignRight, QString::number(m_limit - toPlainText().size()));
     QPalette pal = palette();
-    pal.setBrush( QPalette::Base, QBrush( pixmap ) );
-    setPalette( pal );
+    pal.setBrush(QPalette::Base, QBrush(pixmap));
+    setPalette(pal);
 }
 
-void ComposerWidget::setEditing( bool isEditing )
+void ComposerWidget::setEditing(bool isEditing)
 {
-    if ( isEditing ) {
-        setMaximumHeight( 80 );
-    }
-    else {
-        setMaximumHeight( 40 );
+    if (isEditing) {
+        setMaximumHeight(80);
+    } else {
+        setMaximumHeight(40);
     }
 }

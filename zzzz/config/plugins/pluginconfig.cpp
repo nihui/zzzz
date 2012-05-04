@@ -11,25 +11,25 @@
 
 #include <QVBoxLayout>
 
-K_PLUGIN_FACTORY( ZzzzPluginConfigFactory, registerPlugin<ZzzzPluginConfig>(); )
-K_EXPORT_PLUGIN( ZzzzPluginConfigFactory("kcm_zzzz_pluginconfig") )
+K_PLUGIN_FACTORY(ZzzzPluginConfigFactory, registerPlugin<ZzzzPluginConfig>();)
+K_EXPORT_PLUGIN(ZzzzPluginConfigFactory("kcm_zzzz_pluginconfig"))
 
-ZzzzPluginConfig::ZzzzPluginConfig( QWidget* parent, const QVariantList& args )
-: KCModule(ZzzzPluginConfigFactory::componentData(),parent,args)
+ZzzzPluginConfig::ZzzzPluginConfig(QWidget* parent, const QVariantList& args)
+    : KCModule(ZzzzPluginConfigFactory::componentData(), parent, args)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->setMargin( 0 );
+    mainLayout->setMargin(0);
     m_pluginSelector = new KPluginSelector;
-    mainLayout->addWidget( m_pluginSelector );
-    setLayout( mainLayout );
+    mainLayout->addWidget(m_pluginSelector);
+    setLayout(mainLayout);
 
-    connect( m_pluginSelector, SIGNAL(changed(bool)), this, SLOT(changed()) );
+    connect(m_pluginSelector, SIGNAL(changed(bool)), this, SLOT(changed()));
 //     connect( m_pluginSelector, SIGNAL(configCommitted(const QByteArray&) ),
 //              this, SLOT(reparseConfiguration(const QByteArray&)) );
 
-    m_pluginSelector->addPlugins( PluginManager::self()->microBlogPluginInfos(),
-                                  KPluginSelector::ReadConfigFile, i18n( "MicroBlog" ),
-                                  "MicroBlog", KGlobal::config() );
+    m_pluginSelector->addPlugins(PluginManager::self()->microBlogPluginInfos(),
+                                 KPluginSelector::ReadConfigFile, i18n("MicroBlog"),
+                                 "MicroBlog", KGlobal::config());
 
     m_pluginSelector->load();
 }

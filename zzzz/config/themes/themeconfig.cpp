@@ -14,21 +14,21 @@
 #include <KPluginLoader>
 #include <KStandardDirs>
 
-K_PLUGIN_FACTORY( ZzzzThemeConfigFactory, registerPlugin<ZzzzThemeConfig>(); )
-K_EXPORT_PLUGIN( ZzzzThemeConfigFactory("kcm_zzzz_themeconfig") )
+K_PLUGIN_FACTORY(ZzzzThemeConfigFactory, registerPlugin<ZzzzThemeConfig>();)
+K_EXPORT_PLUGIN(ZzzzThemeConfigFactory("kcm_zzzz_themeconfig"))
 
 
-ZzzzThemeConfig::ZzzzThemeConfig( QWidget* parent, const QVariantList& args )
-: KCModule(ZzzzThemeConfigFactory::componentData(),parent,args)
+ZzzzThemeConfig::ZzzzThemeConfig(QWidget* parent, const QVariantList& args)
+    : KCModule(ZzzzThemeConfigFactory::componentData(), parent, args)
 {
     QHBoxLayout* mainLayout = new QHBoxLayout;
-    setLayout( mainLayout );
+    setLayout(mainLayout);
 
     m_themeListView = new QListWidget;
-    mainLayout->addWidget( m_themeListView );
+    mainLayout->addWidget(m_themeListView);
 
     m_preview = new QTextEdit;
-    mainLayout->addWidget( m_preview );
+    mainLayout->addWidget(m_preview);
 }
 
 ZzzzThemeConfig::~ZzzzThemeConfig()
@@ -46,9 +46,9 @@ void ZzzzThemeConfig::load()
     p.source = "preview";
     p.creationDateTime = 0;
 
-    PostWrapper post( p );
+    PostWrapper post(p);
 
-    m_preview->setHtml( ThemeEngine::self()->render( post ) );
+    m_preview->setHtml(ThemeEngine::self()->render(post));
 }
 
 void ZzzzThemeConfig::save()

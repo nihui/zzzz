@@ -5,7 +5,10 @@
 
 class QStackedLayout;
 class KJob;
-namespace KSettings { class Dialog; }
+namespace KSettings
+{
+class Dialog;
+}
 
 class Account;
 class TimelineWidget;
@@ -18,38 +21,38 @@ class TimelineModel;
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
-    public:
-        explicit MainWindow();
-        virtual ~MainWindow();
+public:
+    explicit MainWindow();
+    virtual ~MainWindow();
 
-    private Q_SLOTS:
-        void setCurrentTimeline( const QString& timelineName );
-        void closeTimeline( const QString& timelineName );
-        void slotConfigure();
-        void updateTimelines();
+private Q_SLOTS:
+    void setCurrentTimeline(const QString& timelineName);
+    void closeTimeline(const QString& timelineName);
+    void slotConfigure();
+    void updateTimelines();
 
-        void updateTimeline( const QString& timelineName );
-        void updateUserTimeline( const PostWrapper& post );
-        void updateUserTimeline( const PostWrapper& post, const QString& username );
-        void slotUpdateTimeline( KJob* job );
-        void createPost( const PostWrapper& post );
-        void slotCreatePost( KJob* job );
-        void retweetPost( const PostWrapper& post );
-    private:
-        void setupActions();
-        void createTimelineWidget( const QString& timelineName, const QString& iconName, bool checked );
-    private:
-        NavButtonsWidget* m_buttonsWidget;
-        QStackedLayout* m_stackedLayout;
+    void updateTimeline(const QString& timelineName);
+    void updateUserTimeline(const PostWrapper& post);
+    void updateUserTimeline(const PostWrapper& post, const QString& username);
+    void slotUpdateTimeline(KJob* job);
+    void createPost(const PostWrapper& post);
+    void slotCreatePost(KJob* job);
+    void retweetPost(const PostWrapper& post);
+private:
+    void setupActions();
+    void createTimelineWidget(const QString& timelineName, const QString& iconName, bool checked);
+private:
+    NavButtonsWidget* m_buttonsWidget;
+    QStackedLayout* m_stackedLayout;
 
-        QHash<QString, TimelineModel*> m_timelineModel;
-        QHash<QString, TimelineWidget*> m_timelineWidget;
+    QHash<QString, TimelineModel*> m_timelineModel;
+    QHash<QString, TimelineWidget*> m_timelineWidget;
 
-        ComposerWidget* m_composerWidget;
-        QHash<KJob*, Account*> m_jobAccount;
-        QHash<KJob*, QString> m_jobTimeline;
-        QHash<KJob*, PostWrapper> m_jobPost;
-        KSettings::Dialog* m_settingsDialog;
+    ComposerWidget* m_composerWidget;
+    QHash<KJob*, Account*> m_jobAccount;
+    QHash<KJob*, QString> m_jobTimeline;
+    QHash<KJob*, PostWrapper> m_jobPost;
+    KSettings::Dialog* m_settingsDialog;
 };
 
 #endif // MAINWINDOW_H

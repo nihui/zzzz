@@ -8,17 +8,18 @@
 #include <QObject>
 #include <QVariantList>
 
-namespace Zzzz {
+namespace Zzzz
+{
 
 class PluginPrivate;
 class ZZZZ_EXPORT Plugin : public QObject, public KXMLGUIClient
 {
     Q_OBJECT
-    public:
-        explicit Plugin( QObject* parent, const QVariantList& args );
-        virtual ~Plugin();
-    private:
-        PluginPrivate* const d;
+public:
+    explicit Plugin(QObject* parent, const QVariantList& args);
+    virtual ~Plugin();
+private:
+    PluginPrivate* const d;
 };
 
 }

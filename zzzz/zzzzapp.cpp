@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 
 ZzzzApplication::ZzzzApplication()
-: KUniqueApplication()
+    : KUniqueApplication()
 {
     m_mainwindow = new MainWindow;
     m_mainwindow->show();

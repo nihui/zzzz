@@ -7,21 +7,21 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
-AddAccountWizardPage2::AddAccountWizardPage2( QWidget* parent )
-: QWidget(parent)
+AddAccountWizardPage2::AddAccountWizardPage2(QWidget* parent)
+    : QWidget(parent)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->setMargin( 0 );
-    setLayout( mainLayout );
+    mainLayout->setMargin(0);
+    setLayout(mainLayout);
 
     QFormLayout* formLayout = new QFormLayout;
-    formLayout->setMargin( 0 );
-    mainLayout->addLayout( formLayout );
+    formLayout->setMargin(0);
+    mainLayout->addLayout(formLayout);
 
     m_aliasEdit = new KLineEdit;
     m_pinEdit = new KLineEdit;
-    formLayout->addRow( i18n( "Alias:" ), m_aliasEdit );
-    formLayout->addRow( i18n( "PIN:" ), m_pinEdit );
+    formLayout->addRow(i18n("Alias:"), m_aliasEdit);
+    formLayout->addRow(i18n("PIN:"), m_pinEdit);
 }
 
 AddAccountWizardPage2::~AddAccountWizardPage2()

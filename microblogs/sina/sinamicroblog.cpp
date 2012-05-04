@@ -7,10 +7,10 @@
 #include <QDebug>
 #include <QUrl>
 
-ZZZZ_EXPORT_PLUGIN( SinaMicroBlog )
+ZZZZ_EXPORT_PLUGIN(SinaMicroBlog)
 
-SinaMicroBlog::SinaMicroBlog( QObject* parent, const QVariantList& args )
-: Zzzz::MicroBlog(parent,args)
+SinaMicroBlog::SinaMicroBlog(QObject* parent, const QVariantList& args)
+    : Zzzz::MicroBlog(parent, args)
 {
 }
 
@@ -20,55 +20,55 @@ SinaMicroBlog::~SinaMicroBlog()
 
 QByteArray SinaMicroBlog::oauthConsumerKey() const
 {
-    return QByteArray( "3958149448" );
+    return QByteArray("3958149448");
 }
 
 QByteArray SinaMicroBlog::oauthConsumerSecret() const
 {
-    return QByteArray( "75c7d73f76c90edbe668650d97b07eee" );
+    return QByteArray("75c7d73f76c90edbe668650d97b07eee");
 }
 
-void SinaMicroBlog::oauthRequestToken( QString& apiUrl, HttpMethod& method, ParamMap& params )
+void SinaMicroBlog::oauthRequestToken(QString& apiUrl, HttpMethod& method, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/oauth/request_token";
     method = GET;
-    params.insert( "oauth_callback", "null" );
+    params.insert("oauth_callback", "null");
 }
 
-void SinaMicroBlog::oauthAuthorize( QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::oauthAuthorize(QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/oauth/authorize";
 }
 
-void SinaMicroBlog::oauthAccessToken( QString& apiUrl, HttpMethod& method, ParamMap& params )
+void SinaMicroBlog::oauthAccessToken(QString& apiUrl, HttpMethod& method, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/oauth/access_token";
     method = POST;
 }
 
-void SinaMicroBlog::updateTimeline( Timeline t, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::updateTimeline(Timeline t, QString& apiUrl, ParamMap& params)
 {
-    switch ( t ) {
-        case Home:
-            apiUrl = "http://api.t.sina.com.cn/statuses/home_timeline.json";
-            params.insert( "count", "20" );
-            break;
-        case Public:
-            apiUrl = "http://api.t.sina.com.cn/statuses/public_timeline.json";
-            params.insert( "count", "20" );
-            break;
-        case Mentions:
-            apiUrl = "http://api.t.sina.com.cn/statuses/mentions.json";
-            params.insert( "count", "20" );
-            break;
+    switch (t) {
+    case Home:
+        apiUrl = "http://api.t.sina.com.cn/statuses/home_timeline.json";
+        params.insert("count", "20");
+        break;
+    case Public:
+        apiUrl = "http://api.t.sina.com.cn/statuses/public_timeline.json";
+        params.insert("count", "20");
+        break;
+    case Mentions:
+        apiUrl = "http://api.t.sina.com.cn/statuses/mentions.json";
+        params.insert("count", "20");
+        break;
     }
 }
 
-void SinaMicroBlog::updateUserTimeline( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::updateUserTimeline(const Zzzz::User& user, QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/statuses/user_timeline.json";
-    params.insert( "screen_name", user.screenName.toUtf8().toPercentEncoding() );
-    params.insert( "count", "20" );
+    params.insert("screen_name", user.screenName.toUtf8().toPercentEncoding());
+    params.insert("count", "20");
 }
 
 QStringList SinaMicroBlog::timelines() const
@@ -76,11 +76,11 @@ QStringList SinaMicroBlog::timelines() const
     return QStringList();
 }
 
-void SinaMicroBlog::updateTimeline( const QString& timeline, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::updateTimeline(const QString& timeline, QString& apiUrl, ParamMap& params)
 {
-    if ( timeline == "comments" ) {
+    if (timeline == "comments") {
         apiUrl = "http://api.t.sina.com.cn/statuses/comments_timeline.json";
-        params.insert( "count", "20" );
+        params.insert("count", "20");
     }
 }
 
@@ -89,58 +89,58 @@ int SinaMicroBlog::charLimit() const
     return 150;
 }
 
-void SinaMicroBlog::createPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::createPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/statuses/update.json";
-    params.insert( "status", QUrl::toPercentEncoding( post.text ) );
+    params.insert("status", QUrl::toPercentEncoding(post.text));
 }
 
-void SinaMicroBlog::removePost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
-    apiUrl = QString( "http://api.t.sina.com.cn/statuses/destroy/%1.json" ).arg( post.id );
+    apiUrl = QString("http://api.t.sina.com.cn/statuses/destroy/%1.json").arg(post.id);
 }
 
-void SinaMicroBlog::retweetPost( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::retweetPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/statuses/repost.json";
-    params.insert( "id", post.id.toUtf8() );
+    params.insert("id", post.id.toUtf8());
 }
 
-void SinaMicroBlog::createFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::createFavorite(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://api.t.sina.com.cn/favorites/create.json";
-    params.insert( "id", post.id.toUtf8() );
+    params.insert("id", post.id.toUtf8());
 }
 
-void SinaMicroBlog::removeFavorite( const Zzzz::Post& post, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::removeFavorite(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
-    apiUrl = QString( "http://api.t.sina.com.cn/favorites/destroy/%1.json" ).arg( post.id );
+    apiUrl = QString("http://api.t.sina.com.cn/favorites/destroy/%1.json").arg(post.id);
 }
 
-void SinaMicroBlog::createFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::createFriendship(const Zzzz::User& user, QString& apiUrl, ParamMap& params)
 {
-    apiUrl = QString( "http://api.t.sina.com.cn/friendships/create/%1.json").arg( user.id );
+    apiUrl = QString("http://api.t.sina.com.cn/friendships/create/%1.json").arg(user.id);
 }
 
-void SinaMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl, ParamMap& params )
+void SinaMicroBlog::removeFriendship(const Zzzz::User& user, QString& apiUrl, ParamMap& params)
 {
-    apiUrl = QString( "http://api.t.sina.com.cn/friendships/destroy/%1.json").arg( user.id );
+    apiUrl = QString("http://api.t.sina.com.cn/friendships/destroy/%1.json").arg(user.id);
 }
 
 QRegExp SinaMicroBlog::topicMatch() const
 {
-    return QRegExp( "#([^#]+)#", Qt::CaseInsensitive );
+    return QRegExp("#([^#]+)#", Qt::CaseInsensitive);
 }
 
-void SinaMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& post )
+void SinaMicroBlog::readPostFromJsonMap(const QVariantMap& varmap, Zzzz::Post& post)
 {
     post.id = varmap["id"].toString();
     post.source = varmap["source"].toString();
     QVariantMap usermap = varmap["user"].toMap();
-    readUserFromJsonMap( usermap, post.user );
+    readUserFromJsonMap(usermap, post.user);
     post.text = varmap["text"].toString();
-    Zzzz::Utility::urlize( post.text );
-    post.creationDateTime = Zzzz::Utility::string2datetime( varmap["created_at"].toString() );
+    Zzzz::Utility::urlize(post.text);
+    post.creationDateTime = Zzzz::Utility::string2datetime(varmap["created_at"].toString());
     post.replyToStatusId = varmap["in_reply_to_status_id"].toString();
     post.replyToUserId = varmap["in_reply_to_user_id"].toString();
     post.replyToUserName = varmap["in_reply_to_user_name"].toString();
@@ -149,17 +149,17 @@ void SinaMicroBlog::readPostFromJsonMap( const QVariantMap& varmap, Zzzz::Post& 
     post.originalPic = varmap["original_pic"].toString();
 
     QVariantMap retweeted_status = varmap["retweeted_status"].toMap();
-    if ( !retweeted_status.isEmpty() ) {
+    if (!retweeted_status.isEmpty()) {
         // retweet
         QVariantMap retweeted_user = retweeted_status["user"].toMap();
-        post.text.append( " @" + retweeted_user["screen_name"].toString() );
+        post.text.append(" @" + retweeted_user["screen_name"].toString());
         QString retweetText = retweeted_status["text"].toString();
-        Zzzz::Utility::urlize( retweetText );
-        post.text.append( " " + retweetText );
+        Zzzz::Utility::urlize(retweetText);
+        post.text.append(" " + retweetText);
     }
 }
 
-void SinaMicroBlog::readUserFromJsonMap( const QVariantMap& varmap, Zzzz::User& user )
+void SinaMicroBlog::readUserFromJsonMap(const QVariantMap& varmap, Zzzz::User& user)
 {
     user.name = varmap["name"].toString();
     user.location = varmap["location"].toString();

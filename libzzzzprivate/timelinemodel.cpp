@@ -145,15 +145,14 @@ void TimelineModel::slotContentsChanged()
 
 void TimelineModel::slotAccountRemoved(const QString& alias, const Account* oldAccount)
 {
-    for (int i = 0; i < m_posts.count(); ) {
+    for (int i = 0; i < m_posts.count();) {
         const PostWrapper& post = m_posts.at(i);
         if (post.myAccount() == oldAccount) {
             beginRemoveRows(QModelIndex(), i, i);
             m_posts.removeAt(i);
             delete m_docs.takeAt(i);
             beginRemoveRows(QModelIndex(), i, i);
-        }
-        else {
+        } else {
             ++i;
         }
     }
@@ -161,7 +160,7 @@ void TimelineModel::slotAccountRemoved(const QString& alias, const Account* oldA
 
 
 TimelineDelegate::TimelineDelegate(QObject* parent)
-: QAbstractItemDelegate(parent)
+    : QAbstractItemDelegate(parent)
 {
 }
 

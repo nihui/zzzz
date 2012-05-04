@@ -35,7 +35,7 @@ public:
     void clearPosts();
 private Q_SLOTS:
     void slotContentsChanged();
-    void slotAccountRemoved( const QString& alias, const Account* oldAccount );
+    void slotAccountRemoved(const QString& alias, const Account* oldAccount);
 private:
     QList<PostWrapper> m_posts;
     QList<PostDocument*> m_docs;
