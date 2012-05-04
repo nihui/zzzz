@@ -18,8 +18,9 @@ public:
     static PluginManager* self();
     ~PluginManager();
     void loadMicroBlogPlugin();
-    QString microBlogPluginName(Zzzz::MicroBlog* microblog) const;
+
     QList<KPluginInfo> microBlogPluginInfos() const;
+
     KPluginInfo microBlogPluginInfo(Zzzz::MicroBlog* microblog) const;
     KPluginInfo microBlogPluginInfo(const QString& pluginName) const;
     Zzzz::MicroBlog* microBlog(const QString& pluginName) const;

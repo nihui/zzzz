@@ -55,7 +55,7 @@ void Account::writeConfig()
 
     KConfigGroup* m_configGroup = new KConfigGroup(KGlobal::config(), QString::fromLatin1("Account_%1").arg(m_alias));
     m_configGroup->writeEntry("Alias", m_alias);
-    m_configGroup->writeEntry("MicroBlog", PluginManager::self()->microBlogPluginName(m_microblog));
+    m_configGroup->writeEntry("MicroBlog", PluginManager::self()->microBlogPluginInfo(m_microblog).pluginName());
     m_configGroup->writeEntry("Enabled", m_isEnabled);
     m_configGroup->writeEntry("Authorized", m_isAuthorized);
     m_configGroup->writeEntry("OAuthToken", m_oauthToken);

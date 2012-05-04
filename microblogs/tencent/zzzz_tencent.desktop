@@ -1,7 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
 Type=Service
-X-Choqok-Version=1
 Icon=tencent_microblog
 ServiceTypes=Zzzz/MicroBlog
 X-KDE-Library=zzzz_tencent

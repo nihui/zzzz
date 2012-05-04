@@ -72,11 +72,6 @@ void PluginManager::loadMicroBlogPlugin()
     AccountManager::self()->loadAccounts();
 }
 
-QString PluginManager::microBlogPluginName(Zzzz::MicroBlog* microblog) const
-{
-    return m_microblogs.key(microblog);
-}
-
 QList<KPluginInfo> PluginManager::microBlogPluginInfos() const
 {
     return m_microblogPluginInfos.values();
@@ -97,4 +92,3 @@ Zzzz::MicroBlog* PluginManager::microBlog(const QString& pluginName) const
 {
     return m_microblogs.value(pluginName);
 }
-
