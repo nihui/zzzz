@@ -48,10 +48,7 @@ void ZzzzThemeConfig::load()
 
     PostWrapper post( p );
 
-    QList<PostWrapper> posts;
-    posts.append( post );
-
-    m_preview->setHtml( ThemeEngine::self()->render( posts ) );
+    m_preview->setHtml( ThemeEngine::self()->render( post ) );
 }
 
 void ZzzzThemeConfig::save()

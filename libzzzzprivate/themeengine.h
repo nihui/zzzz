@@ -11,7 +11,7 @@ class ZZZZPRIVATE_EXPORT ThemeEngine
     public:
         static ThemeEngine* self();
         ~ThemeEngine();
-        QString render( const QList<PostWrapper>& posts ) const;
+        QString render(const PostWrapper& post) const;
     private:
         explicit ThemeEngine();
         static ThemeEngine* m_self;

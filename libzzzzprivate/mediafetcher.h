@@ -3,11 +3,10 @@
 
 #include "zzzzprivate_export.h"
 
-#include <QCache>
-#include <QHash>
 #include <QImage>
 #include <QObject>
 #include <QSet>
+#include <QUrl>
 
 class KJob;
 
@@ -17,25 +16,18 @@ class ZZZZPRIVATE_EXPORT MediaFetcher : public QObject
     public:
         static MediaFetcher* self();
         ~MediaFetcher();
-        void requestAvatar( const QString& url );
-        void requestImage( const QString& url );
+        void requestImage(const QUrl& url);
     Q_SIGNALS:
-        void gotAvatar( const QString& url, const QImage& image );
-        void gotImage( const QString& url, const QImage& image );
-        void errorAvatar( const QString& url );
-        void errorImage( const QString& url );
+        void gotImage(const QUrl& url);
+        void errorImage(const QUrl& url);
     private Q_SLOTS:
-        void slotAvatarFetched( KJob* job );
-        void slotImageFetched( KJob* job );
+        void slotImageFetched(KJob* job);
     private:
         explicit MediaFetcher();
         static MediaFetcher* m_self;
 
-        QSet<QString> m_ontheway;
-        QHash<KJob*, QString> m_jobUrl;
-
-        QHash<QString, QImage> m_avatarCache;
-        QCache<QString, QImage> m_imageCache;
+        QSet<QUrl> m_ontheway;
+        QHash<KJob*, QUrl> m_jobUrl;
 };
 
 #endif // MEDIAFETCHER_H

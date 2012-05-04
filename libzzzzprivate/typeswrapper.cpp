@@ -74,3 +74,5 @@ void PostWrapper::setReplyLink(const QString& replyLink) const { d->replyLink = 
 void PostWrapper::setRetweetLink(const QString& retweetLink) const { d->retweetLink = retweetLink; }
 void PostWrapper::setMyAccount(Account* myAccount) const { d->myAccount = myAccount; }
 Account* PostWrapper::myAccount() const { return d->myAccount; }
+
+bool PostWrapper::operator==(const PostWrapper& rhs) const { return myAccount() == rhs.myAccount() && id() == rhs.id(); }

@@ -1,5 +1,6 @@
 #include "mediafetcher.h"
 
+#include <QPixmapCache>
 #include <KDebug>
 #include <KIO/Job>
 #include <KIO/StoredTransferJob>
@@ -21,87 +22,47 @@ MediaFetcher::~MediaFetcher()
 {
 }
 
-void MediaFetcher::requestAvatar( const QString& url )
+void MediaFetcher::requestImage(const QUrl& url)
 {
-    if ( m_avatarCache.contains( url ) ) {
-        // hit cache
-        emit gotAvatar( url, m_avatarCache.value( url ) );
+    QPixmap pixmap;
+    if (QPixmapCache::find(url.toString(), &pixmap)) {
+        // already in cache
+        emit gotImage(url);
         return;
     }
 
-    if ( m_ontheway.contains( url ) ) {
+    if (m_ontheway.contains(url)) {
         // already on the way
         return;
     }
 
+    kWarning() << url;
     // fetch from remote
-    m_ontheway.insert( url );
+    m_ontheway.insert(url);
 
-    KIO::Job* job = KIO::storedGet( url, KIO::NoReload, KIO::HideProgressInfo );
+    KIO::Job* job = KIO::storedGet(url, KIO::NoReload, KIO::HideProgressInfo);
     m_jobUrl[ job ] = url;
-    connect( job, SIGNAL(result(KJob*)), this, SLOT(slotAvatarFetched(KJob*)) );
+    connect(job, SIGNAL(result(KJob*)), this, SLOT(slotImageFetched(KJob*)));
     job->start();
 }
 
-void MediaFetcher::requestImage( const QString& url )
+void MediaFetcher::slotImageFetched(KJob* job)
 {
-    if ( m_imageCache.contains( url ) ) {
-        // hit cache
-        QImage* image = m_imageCache.object( url );
-        emit gotAvatar( url, *image );
-        return;
-    }
+    QUrl url = m_jobUrl.take(job);
 
-    if ( m_ontheway.contains( url ) ) {
-        // already on the way
-        return;
-    }
-
-    // fetch from remote
-    m_ontheway.insert( url );
-
-    KIO::Job* job = KIO::storedGet( url, KIO::NoReload, KIO::HideProgressInfo );
-    m_jobUrl[ job ] = url;
-    connect( job, SIGNAL(result(KJob*)), this, SLOT(slotImageFetched(KJob*)) );
-    job->start();
-}
-
-void MediaFetcher::slotAvatarFetched( KJob* job )
-{
-    QString url = m_jobUrl.take( job );
-
-    if ( job->error() ) {
+    if (job->error()) {
         kWarning() << "Job Error: " << job->errorString();
-        emit errorAvatar( url );
+        emit errorImage(url);
         return;
     }
 
     KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
-    QImage image;
-    image.loadFromData( j->data() );
 
-    m_avatarCache.insert( url, image );
-    m_ontheway.remove( url );
+    QPixmap pixmap;
+    pixmap.loadFromData(j->data());
+    QPixmapCache::insert(url.toString(), pixmap);
 
-    emit gotAvatar( url, m_avatarCache.value( url ) );
-}
+    m_ontheway.remove(url);
 
-void MediaFetcher::slotImageFetched( KJob* job )
-{
-    QString url = m_jobUrl.take( job );
-
-    if ( job->error() ) {
-        kWarning() << "Job Error: " << job->errorString();
-        emit errorImage( url );
-        return;
-    }
-
-    KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
-    QImage* image = new QImage;
-    image->loadFromData( j->data() );
-
-    m_imageCache.insert( url, image );
-    m_ontheway.remove( url );
-
-    emit gotImage( url, *image );
+    emit gotImage(url);
 }

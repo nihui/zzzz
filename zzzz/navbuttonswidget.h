@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QPoint>
+#include <QUrl>
 
 class QHBoxLayout;
 class QPushButton;
@@ -22,8 +23,8 @@ class NavButtonsWidget : public QWidget
     protected:
         virtual void wheelEvent( QWheelEvent* event );
     private Q_SLOTS:
-        void slotGotAvatar( const QString& url, const QImage& image );
-        void slotErrorAvatar( const QString& url );
+        void slotGotImage( const QUrl& url );
+        void slotErrorImage( const QUrl& url );
     private:
         QHBoxLayout* m_buttonLayout;
         QPushButton* m_currentButton;
@@ -31,7 +32,7 @@ class NavButtonsWidget : public QWidget
         QPoint m_buttonStart;
         QPoint m_dragStart;
 
-        QHash<QString, QPushButton*> m_urlButton;
+        QHash<QUrl, QPushButton*> m_urlButton;
 };
 
 #endif // NAVBUTTONSWIDGET_H

@@ -14,6 +14,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QWheelEvent>
+#include <QPixmapCache>
 
 NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 : QWidget(parent)
@@ -25,10 +26,10 @@ NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 
     m_currentButton = 0;
 
-    connect( MediaFetcher::self(), SIGNAL(gotAvatar(const QString&, const QImage&)),
-             this, SLOT(slotGotAvatar(const QString&, const QImage&)) );
-    connect( MediaFetcher::self(), SIGNAL(errorAvatar(const QString&)),
-             this, SLOT(slotErrorAvatar(const QString&)) );
+    connect( MediaFetcher::self(), SIGNAL(gotImage(const QUrl&)),
+             this, SLOT(slotGotImage(const QUrl&)) );
+    connect( MediaFetcher::self(), SIGNAL(errorImage(const QUrl&)),
+             this, SLOT(slotErrorImage(const QUrl&)) );
 }
 
 NavButtonsWidget::~NavButtonsWidget()
@@ -122,7 +123,7 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
     if ( iconName.startsWith( "http://" ) ) {
         /// load icon from remote url
         m_urlButton[ iconName ] = button;
-        MediaFetcher::self()->requestAvatar( iconName );
+        MediaFetcher::self()->requestImage( iconName );
     }
     else {
         button->setIcon( KIcon( iconName ) );
@@ -152,16 +153,19 @@ void NavButtonsWidget::wheelEvent( QWheelEvent* event )
     event->accept();
 }
 
-void NavButtonsWidget::slotGotAvatar( const QString& url, const QImage& image )
+void NavButtonsWidget::slotGotImage( const QUrl& url )
 {
     if ( !m_urlButton.contains( url ) )
         return;
 
     QPushButton* button = m_urlButton.take( url );
-    button->setIcon( KIcon( QPixmap::fromImage( image ) ) );
+    QPixmap pixmap;
+    if (QPixmapCache::find(url.toString(), &pixmap)) {
+        button->setIcon(KIcon(pixmap));
+    }
 }
 
-void NavButtonsWidget::slotErrorAvatar( const QString& url )
+void NavButtonsWidget::slotErrorImage( const QUrl& url )
 {
     if ( !m_urlButton.contains( url ) )
         return;

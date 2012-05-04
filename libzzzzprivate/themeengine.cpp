@@ -33,46 +33,30 @@ ThemeEngine::~ThemeEngine()
     delete m_engine;
 }
 
-QString ThemeEngine::render( const QList<PostWrapper>& posts ) const
+QString ThemeEngine::render(const PostWrapper& post) const
 {
-    QVariantList postList;
+    post.setUserLink("zzzz:user");
+    post.setReplyLink("zzzz:reply");
+    post.setRetweetLink("zzzz:retweet");
 
-    QList<PostWrapper>::ConstIterator it = posts.constBegin();
-    QList<PostWrapper>::ConstIterator end = posts.constEnd();
-    int i = 0;
-    while ( it != end ) {
-        const PostWrapper& post = *it;
+    Account* account = post.myAccount();
+    if (account) {
+        QString zzzztext = post.text();
+        // @username
+        QRegExp usernameRegex = account->microblog()->usernameMatch();
+        zzzztext.replace( usernameRegex, "<a href=\"zzzz:username:\\1\">@\\1</a>" );
+        // #topic
+        QRegExp topicRegex = account->microblog()->topicMatch();
+        zzzztext.replace( topicRegex, "<a href=\"zzzz:topic:\\1\">#\\1#</a>" );
 
-        post.setUserLink( QString( "zzzz:user:%1" ).arg( i ) );
-        post.setReplyLink( QString( "zzzz:reply:%1" ).arg( i ) );
-        post.setRetweetLink( QString( "zzzz:retweet:%1" ).arg( i ) );
-
-        Account* account = post.myAccount();
-        if (account) {
-            QString zzzztext = post.text();
-            // @username
-            QRegExp usernameRegex = account->microblog()->usernameMatch();
-            zzzztext.replace( usernameRegex, QString( "<a href=\"zzzz:username:%1:\\1\">@\\1</a>" ).arg( i ) );
-            // #topic
-            QRegExp topicRegex = account->microblog()->topicMatch();
-            zzzztext.replace( topicRegex, QString( "<a href=\"zzzz:topic:%1:\\1\">#\\1#</a>" ).arg( i ) );
-
-            post.setZzzztext( zzzztext );
-        }
-
-        ++i;
-
-        ++it;
-
-        postList.append( QVariant::fromValue( post ) );
-//         kWarning() << p.user.profileImageUrl;
+        post.setZzzztext( zzzztext );
     }
 
     QVariantHash mapping;
-    mapping.insert( "posts", postList );
+    mapping.insert("post", QVariant::fromValue(post));
 
-    Grantlee::Context c( mapping );
+    Grantlee::Context c(mapping);
     Grantlee::Template t = m_engine->loadByName( "simple.html" );
 
-    return t->render( &c );
+    return t->render(&c);
 }

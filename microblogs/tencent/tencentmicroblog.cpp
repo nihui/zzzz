@@ -159,7 +159,7 @@ void TencentMicroBlog::removeFriendship( const Zzzz::User& user, QString& apiUrl
 
 QRegExp TencentMicroBlog::usernameMatch() const
 {
-    return QRegExp( "@([a-zA-Z0-9]+)", Qt::CaseInsensitive );
+    return QRegExp( "@([a-zA-Z0-9-]+)", Qt::CaseInsensitive );
 }
 
 void TencentMicroBlog::readTimelineFromData( const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok )

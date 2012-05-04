@@ -7,6 +7,7 @@
 #include <account.h>
 #include <accountmanager.h>
 #include <pluginmanager.h>
+#include <timelinemodel.h>
 
 #include <microblog.h>
 #include <types.h>
@@ -273,8 +274,8 @@ void MainWindow::slotUpdateTimeline( KJob* job )
         return;
     }
 
-    TimelineWidget* tw = m_timelineWidget.value( timeline );
-    if ( !tw ) {
+    TimelineModel* model = m_timelineModel.value( timeline );
+    if ( !model ) {
         /// create user timeline
         if ( iconName == "zzzz_fetch" && !postlist.isEmpty() ) {
             // click from username
@@ -282,7 +283,7 @@ void MainWindow::slotUpdateTimeline( KJob* job )
         }
         qWarning() << "create timeline widget" << timeline << iconName;
         createTimelineWidget( timeline, iconName, false );
-        tw = m_timelineWidget.value( timeline );
+        model = m_timelineModel.value( timeline );
     }
 
     QList<Zzzz::Post>::ConstIterator it = postlist.constBegin();
@@ -293,10 +294,9 @@ void MainWindow::slotUpdateTimeline( KJob* job )
         post.setMyAccount( account );
         /// update widget
 //         qWarning() << "got new post";
-        tw->appendPost( post );
+        model->appendPost( post );
         ++it;
     }
-    tw->updateHTML();
 }
 
 void MainWindow::createPost( const PostWrapper& post )
@@ -378,9 +378,8 @@ void MainWindow::slotCreatePost( KJob* job )
     post.setMyAccount( account );
     /// update widget
     qWarning() << "created new post";
-    TimelineWidget* tw = m_timelineWidget.value( "__HOME__" );
-    tw->prependPost( post );
-    tw->updateHTML();
+    TimelineModel* model = m_timelineModel.value( "__HOME__" );
+    model->prependPost( post );
 }
 
 void MainWindow::retweetPost( const PostWrapper& post )
@@ -429,6 +428,11 @@ void MainWindow::createTimelineWidget( const QString& timelineName, const QStrin
     connect( tw, SIGNAL(usernameClicked(const PostWrapper&,const QString&)),
              this, SLOT(updateUserTimeline(const PostWrapper&,const QString&)) );
 
+    TimelineModel* model = new TimelineModel;
+    m_timelineModel[ timelineName ] = model;
+    tw->setModel(model);
+
     m_stackedLayout->addWidget( tw );
     m_buttonsWidget->addButton( timelineName, iconName, checked );
+
 }

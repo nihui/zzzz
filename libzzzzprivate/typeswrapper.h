@@ -67,6 +67,8 @@ class ZZZZPRIVATE_EXPORT PostWrapper
         void setMyAccount(Account* myAccount) const;
         Account* myAccount() const;
 
+        bool operator==(const PostWrapper& rhs) const;
+
     private:
         QSharedDataPointer<PostWrapperData> d;
 };

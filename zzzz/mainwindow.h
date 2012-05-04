@@ -13,6 +13,8 @@ class ComposerWidget;
 class NavButtonsWidget;
 class PostWrapper;
 
+class TimelineModel;
+
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
@@ -40,6 +42,7 @@ class MainWindow : public KXmlGuiWindow
         NavButtonsWidget* m_buttonsWidget;
         QStackedLayout* m_stackedLayout;
 
+        QHash<QString, TimelineModel*> m_timelineModel;
         QHash<QString, TimelineWidget*> m_timelineWidget;
 
         ComposerWidget* m_composerWidget;

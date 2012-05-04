@@ -1,11 +1,10 @@
 <table>
 {% autoescape off %}
-{% for post in posts %}
     <tr>
         <td>
             <img src="{{ post.userProfileImageUrl }}" width="48" height="48" />
         </td>
-        <td style="word-break:break-all;">
+        <td>
             {% if post.thumbnailPic %}
             <a href="{{ post.originalPic }}"><img align="right" src="{{ post.thumbnailPic }}" /></a>
             {% endif %}
@@ -19,8 +18,5 @@
             {{ post.source }}
         </td>
     </tr>
-    <tr>
-    </tr>
-{% endfor %}
 {% endautoescape %}
 </table>
