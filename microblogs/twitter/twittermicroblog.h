@@ -11,6 +11,7 @@ public:
     virtual QString apiRoot() const;
     virtual QByteArray oauthConsumerKey() const;
     virtual QByteArray oauthConsumerSecret() const;
+    virtual void createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params);
 };
 
 #endif // TWITTERMICROBLOG_H

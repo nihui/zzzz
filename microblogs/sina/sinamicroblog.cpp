@@ -95,6 +95,12 @@ void SinaMicroBlog::createPost(const Zzzz::Post& post, QString& apiUrl, ParamMap
     params.insert("status", QUrl::toPercentEncoding(post.text));
 }
 
+void SinaMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
+{
+    apiUrl = "http://api.t.sina.com.cn/statuses/upload.json";
+    params.insert("status", QUrl::toPercentEncoding(post.text));
+}
+
 void SinaMicroBlog::removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = QString("http://api.t.sina.com.cn/statuses/destroy/%1.json").arg(post.id);

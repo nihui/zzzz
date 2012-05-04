@@ -88,6 +88,13 @@ void TwitterCompatibleAPIMicroBlog::createPost(const Zzzz::Post& post, QString& 
     params.insert("in_reply_to_status_id", post.replyToStatusId.toUtf8());
 }
 
+void TwitterCompatibleAPIMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
+{
+    apiUrl = apiRoot() + "/statuses/update_with_media.json";
+    params.insert("status", QUrl::toPercentEncoding(post.text));
+    params.insert("in_reply_to_status_id", post.replyToStatusId.toUtf8());
+}
+
 void TwitterCompatibleAPIMicroBlog::removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = apiRoot() + QString("/statuses/destroy/%1.json").arg(post.id);

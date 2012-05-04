@@ -5,6 +5,7 @@
 
 #include <types.h>
 
+#include "composerwidget.h"
 #include <KToolInvocation>
 
 #include <KDebug>
@@ -44,9 +45,19 @@ void TimelineWidget::slotAnchorClicked(const QString& anchor, const QModelIndex&
 
     kWarning() << anchor;
     PostWrapper post = index.data(Qt::UserRole).value<PostWrapper>();
+
+    QRect rect = visualRect(index);
+
     if (anchor == "zzzz:user") {
         emit userClicked(post);
     } else if (anchor == "zzzz:reply") {
+        ComposerWidget::self()->composeReply(post);
+        QPoint pos(rect.x(), rect.y() + rect.height());
+        ComposerWidget::self()->move(mapToGlobal(pos));
+        ComposerWidget::self()->resize(rect.width(), 150);
+        ComposerWidget::self()->show();
+        ComposerWidget::self()->raise();
+        ComposerWidget::self()->activateWindow();
         emit replyClicked(post);
     } else if (anchor == "zzzz:retweet:") {
         emit retweetClicked(post);

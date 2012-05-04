@@ -112,6 +112,14 @@ void TencentMicroBlog::createPost(const Zzzz::Post& post, QString& apiUrl, Param
     params.insert("clientip", "127.0.0.1");
 }
 
+void TencentMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
+{
+    apiUrl = "http://open.t.qq.com/api/t/add_pic";
+    params.insert("format", "json");
+    params.insert("content", QUrl::toPercentEncoding(post.text));
+    params.insert("clientip", "127.0.0.1");
+}
+
 void TencentMicroBlog::removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://open.t.qq.com/api/t/del";

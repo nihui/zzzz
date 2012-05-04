@@ -12,7 +12,6 @@ class Dialog;
 
 class Account;
 class TimelineWidget;
-class ComposerWidget;
 class NavButtonsWidget;
 class PostWrapper;
 
@@ -48,7 +47,6 @@ private:
     QHash<QString, TimelineModel*> m_timelineModel;
     QHash<QString, TimelineWidget*> m_timelineWidget;
 
-    ComposerWidget* m_composerWidget;
     QHash<KJob*, Account*> m_jobAccount;
     QHash<KJob*, QString> m_jobTimeline;
     QHash<KJob*, PostWrapper> m_jobPost;

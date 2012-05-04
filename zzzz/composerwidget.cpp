@@ -16,16 +16,22 @@
 
 #include "typeswrapper.h"
 
+ComposerWidget* ComposerWidget::m_self = 0;
+
+ComposerWidget* ComposerWidget::self()
+{
+    if (!m_self)
+        m_self = new ComposerWidget;
+    return m_self;
+}
+
 ComposerWidget::ComposerWidget(QWidget* parent)
     : KTextEdit(parent)
 {
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-
-    m_replyAccount = 0;
-
-    setEditing(false);
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 
     m_limit = 150;
+    m_replyAccount = 0;
 
     connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
 }
@@ -40,6 +46,13 @@ void ComposerWidget::setCharLimit(int limit)
     slotTextChanged();
 }
 
+void ComposerWidget::reset()
+{
+    clear();
+    m_replyAccount = 0;
+    m_replyToStatusId.clear();
+}
+
 void ComposerWidget::composeReply(const PostWrapper& post)
 {
     m_replyAccount = post.myAccount();
@@ -48,18 +61,10 @@ void ComposerWidget::composeReply(const PostWrapper& post)
     setFocus();
 }
 
-void ComposerWidget::focusInEvent(QFocusEvent* event)
-{
-    setEditing(true);
-    KTextEdit::focusInEvent(event);
-}
-
 void ComposerWidget::focusOutEvent(QFocusEvent* event)
 {
-    if (event->reason() != Qt::PopupFocusReason
-            && event->reason() != Qt::ActiveWindowFocusReason)
-        setEditing(false);
-    KTextEdit::focusInEvent(event);
+    reset();
+    hide();
 }
 
 void ComposerWidget::keyPressEvent(QKeyEvent* event)
@@ -74,11 +79,14 @@ void ComposerWidget::keyPressEvent(QKeyEvent* event)
             PostWrapper post(p);
             post.setMyAccount(m_replyAccount);
             emit postComposed(post);
-            clear();
-            m_replyAccount = 0;
-            m_replyToStatusId.clear();
-            setEditing(false);
+            reset();
+            hide();
         }
+        return;
+    }
+    if (event->key() == Qt::Key_Escape) {
+        reset();
+        hide();
         return;
     }
     KTextEdit::keyPressEvent(event);
@@ -109,13 +117,4 @@ void ComposerWidget::slotTextChanged()
     QPalette pal = palette();
     pal.setBrush(QPalette::Base, QBrush(pixmap));
     setPalette(pal);
-}
-
-void ComposerWidget::setEditing(bool isEditing)
-{
-    if (isEditing) {
-        setMaximumHeight(80);
-    } else {
-        setMaximumHeight(40);
-    }
 }

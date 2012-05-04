@@ -19,6 +19,7 @@ public:
     virtual void updateTimeline(const QString& timeline, QString& apiUrl, ParamMap& params);
     virtual int charLimit() const;
     virtual void createPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params);
+    virtual void createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params);
     virtual void removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params);
     virtual void retweetPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params);
     virtual void createFavorite(const Zzzz::Post& post, QString& apiUrl, ParamMap& params);

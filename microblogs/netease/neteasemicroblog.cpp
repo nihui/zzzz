@@ -105,6 +105,13 @@ void NeteaseMicroBlog::createPost(const Zzzz::Post& post, QString& apiUrl, Param
 //     params.insert( "source", "Zzzz" );
 }
 
+void NeteaseMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
+{
+    /// FIXME
+    apiUrl = "http://api.t.163.com/statuses/upload.json";
+//     params.insert("status", QUrl::toPercentEncoding(post.text));
+}
+
 void NeteaseMicroBlog::removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     qWarning() << "NeteaseMicroBlog::removePost";

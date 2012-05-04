@@ -49,6 +49,7 @@ public:
     virtual int charLimit() const = 0;
     /// post part
     virtual void createPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params) = 0;
+    virtual void createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params) = 0;
     virtual void removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params) = 0;
     virtual void retweetPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params) = 0;
     /// favorite part

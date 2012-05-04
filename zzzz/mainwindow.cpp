@@ -81,9 +81,7 @@ MainWindow::MainWindow()
     m_stackedLayout->setSpacing(0);
     mainLayout->addLayout(m_stackedLayout);
 
-    m_composerWidget = new ComposerWidget;
-    mainLayout->addWidget(m_composerWidget);
-    connect(m_composerWidget, SIGNAL(postComposed(const PostWrapper&)),
+    connect(ComposerWidget::self(), SIGNAL(postComposed(const PostWrapper&)),
             this, SLOT(createPost(const PostWrapper&)));
 
     createTimelineWidget("__HOME__", "user-home", true);
@@ -420,8 +418,8 @@ void MainWindow::createTimelineWidget(const QString& timelineName, const QString
     m_timelineWidget[ timelineName ] = tw;
     connect(tw, SIGNAL(userClicked(const PostWrapper&)),
             this, SLOT(updateUserTimeline(const PostWrapper&)));
-    connect(tw, SIGNAL(replyClicked(const PostWrapper&)),
-            m_composerWidget, SLOT(composeReply(const PostWrapper&)));
+//     connect(tw, SIGNAL(replyClicked(const PostWrapper&)),
+//             ComposerWidget::self(), SLOT(composeReply(const PostWrapper&)));
     connect(tw, SIGNAL(retweetClicked(const PostWrapper&)),
             this, SLOT(retweetPost(const PostWrapper&)));
     connect(tw, SIGNAL(usernameClicked(const PostWrapper&, const QString&)),
