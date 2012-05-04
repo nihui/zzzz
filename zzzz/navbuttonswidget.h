@@ -23,8 +23,8 @@ class NavButtonsWidget : public QWidget
     protected:
         virtual void wheelEvent( QWheelEvent* event );
     private Q_SLOTS:
-        void slotGotImage( const QUrl& url );
-        void slotErrorImage( const QUrl& url );
+        void slotGotPixmap( const QUrl& url, const QPixmap& pixmap );
+        void slotErrorPixmap( const QUrl& url );
     private:
         QHBoxLayout* m_buttonLayout;
         QPushButton* m_currentButton;

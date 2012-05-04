@@ -16,7 +16,7 @@
 
 PostDocument::PostDocument()
 {
-    connect(MediaFetcher::self(), SIGNAL(gotImage(const QUrl&)),
+    connect(MediaFetcher::self(), SIGNAL(gotPixmap(const QUrl&, const QPixmap&)),
             this, SIGNAL(contentsChanged()));
 }
 
@@ -26,11 +26,12 @@ PostDocument::~PostDocument()
 
 QVariant PostDocument::loadResource(int type, const QUrl& name)
 {
-    QPixmap pixmap;
-    if (QPixmapCache::find(name.toString(), &pixmap)) {
-        return pixmap;
+    if (type == QTextDocument::ImageResource) {
+        QPixmap pixmap;
+        if (MediaFetcher::self()->findPixmap(name, &pixmap)) {
+            return pixmap;
+        }
     }
-    MediaFetcher::self()->requestImage(name);
     return QTextDocument::loadResource(type, name);
 }
 

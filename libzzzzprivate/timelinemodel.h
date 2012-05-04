@@ -5,12 +5,8 @@
 
 #include <QAbstractItemModel>
 #include <QAbstractItemDelegate>
-#include <QAbstractItemView>
 #include "typeswrapper.h"
 #include <QTextDocument>
-
-#include <QCache>
-#include <QHash>
 
 class PostDocument : public QTextDocument
 {

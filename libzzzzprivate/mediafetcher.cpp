@@ -1,6 +1,5 @@
 #include "mediafetcher.h"
 
-#include <QPixmapCache>
 #include <KDebug>
 #include <KIO/Job>
 #include <KIO/StoredTransferJob>
@@ -16,24 +15,28 @@ MediaFetcher* MediaFetcher::self()
 
 MediaFetcher::MediaFetcher()
 {
+    // 20MB
+    m_cache = new KImageCache("zzzz-media", 20*1024*1024);
+    m_cache->setEvictionPolicy(KSharedDataCache::EvictLeastRecentlyUsed);
+    m_cache->setPixmapCaching(true);
 }
 
 MediaFetcher::~MediaFetcher()
 {
+    delete m_cache;
 }
 
-void MediaFetcher::requestImage(const QUrl& url)
+bool MediaFetcher::findPixmap(const QUrl& url, QPixmap* pixmap)
 {
-    QPixmap pixmap;
-    if (QPixmapCache::find(url.toString(), &pixmap)) {
-        // already in cache
-        emit gotImage(url);
-        return;
+    if (m_cache->findPixmap(url.toString(), pixmap)) {
+        // hit cache
+        return true;
     }
 
+    // request the missing image
     if (m_ontheway.contains(url)) {
         // already on the way
-        return;
+        return false;
     }
 
     kWarning() << url;
@@ -42,17 +45,18 @@ void MediaFetcher::requestImage(const QUrl& url)
 
     KIO::Job* job = KIO::storedGet(url, KIO::NoReload, KIO::HideProgressInfo);
     m_jobUrl[ job ] = url;
-    connect(job, SIGNAL(result(KJob*)), this, SLOT(slotImageFetched(KJob*)));
+    connect(job, SIGNAL(result(KJob*)), this, SLOT(slotResult(KJob*)));
     job->start();
+    return false;
 }
 
-void MediaFetcher::slotImageFetched(KJob* job)
+void MediaFetcher::slotResult(KJob* job)
 {
     QUrl url = m_jobUrl.take(job);
 
     if (job->error()) {
         kWarning() << "Job Error: " << job->errorString();
-        emit errorImage(url);
+        emit errorPixmap(url);
         return;
     }
 
@@ -60,9 +64,9 @@ void MediaFetcher::slotImageFetched(KJob* job)
 
     QPixmap pixmap;
     pixmap.loadFromData(j->data());
-    QPixmapCache::insert(url.toString(), pixmap);
+    m_cache->insertPixmap(url.toString(), pixmap);
 
     m_ontheway.remove(url);
 
-    emit gotImage(url);
+    emit gotPixmap(url, pixmap);
 }

@@ -14,7 +14,6 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QWheelEvent>
-#include <QPixmapCache>
 
 NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 : QWidget(parent)
@@ -26,10 +25,10 @@ NavButtonsWidget::NavButtonsWidget( QWidget* parent )
 
     m_currentButton = 0;
 
-    connect( MediaFetcher::self(), SIGNAL(gotImage(const QUrl&)),
-             this, SLOT(slotGotImage(const QUrl&)) );
-    connect( MediaFetcher::self(), SIGNAL(errorImage(const QUrl&)),
-             this, SLOT(slotErrorImage(const QUrl&)) );
+    connect( MediaFetcher::self(), SIGNAL(gotPixmap(const QUrl&, const QPixmap&)),
+             this, SLOT(slotGotPixmap(const QUrl&, const QPixmap&)) );
+    connect( MediaFetcher::self(), SIGNAL(errorPixmap(const QUrl&)),
+             this, SLOT(slotErrorPixmap(const QUrl&)) );
 }
 
 NavButtonsWidget::~NavButtonsWidget()
@@ -123,7 +122,10 @@ void NavButtonsWidget::addButton( const QString& timelineName, const QString& ic
     if ( iconName.startsWith( "http://" ) ) {
         /// load icon from remote url
         m_urlButton[ iconName ] = button;
-        MediaFetcher::self()->requestImage( iconName );
+        QPixmap pixmap;
+        if (MediaFetcher::self()->findPixmap(iconName, &pixmap)) {
+            button->setIcon(KIcon(pixmap));
+        }
     }
     else {
         button->setIcon( KIcon( iconName ) );
@@ -153,19 +155,16 @@ void NavButtonsWidget::wheelEvent( QWheelEvent* event )
     event->accept();
 }
 
-void NavButtonsWidget::slotGotImage( const QUrl& url )
+void NavButtonsWidget::slotGotPixmap( const QUrl& url, const QPixmap& pixmap )
 {
     if ( !m_urlButton.contains( url ) )
         return;
 
     QPushButton* button = m_urlButton.take( url );
-    QPixmap pixmap;
-    if (QPixmapCache::find(url.toString(), &pixmap)) {
-        button->setIcon(KIcon(pixmap));
-    }
+    button->setIcon(KIcon(pixmap));
 }
 
-void NavButtonsWidget::slotErrorImage( const QUrl& url )
+void NavButtonsWidget::slotErrorPixmap( const QUrl& url )
 {
     if ( !m_urlButton.contains( url ) )
         return;
