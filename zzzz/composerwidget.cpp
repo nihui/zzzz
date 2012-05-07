@@ -9,6 +9,7 @@
 #include <QPixmap>
 
 #include <KDebug>
+#include <KFileDialog>
 
 #include <types.h>
 
@@ -27,6 +28,9 @@ ComposerWidget::ComposerWidget(QWidget* parent)
     composerEdit->installEventFilter(this);
 
     connect(composerEdit, SIGNAL(textChanged()), this, SLOT(updateIndicator()));
+    connect(image, SIGNAL(clicked()), this, SLOT(slotImage()));
+    connect(cancel, SIGNAL(clicked()), this, SLOT(discard()));
+    connect(ok, SIGNAL(clicked()), this, SLOT(compose()));
 }
 
 ComposerWidget::~ComposerWidget()
@@ -66,23 +70,10 @@ bool ComposerWidget::eventFilter(QObject* obj, QEvent* event)
     else if (event->type() == QEvent::KeyPress) {
         QKeyEvent* e = static_cast<QKeyEvent*>(event);
         if (e->key() == Qt::Key_Return) {
-            QString text = composerEdit->toPlainText();
-            if (!text.isEmpty()) {
-                kWarning() << "enter pressed" << text;
-                Zzzz::Post p;
-                p.replyToStatusId = m_replyToStatusId;
-                p.text = text;
-                PostWrapper post(p);
-                post.setMyAccount(m_replyAccount);
-                emit postComposed(post);
-    //             reset();
-    //             hide();
-            }
+            compose();
         }
         if (e->key() == Qt::Key_Escape) {
-    //         reset();
-    //         hide();
-            emit postDiscarded();
+            discard();
         }
     }
 
@@ -108,4 +99,43 @@ void ComposerWidget::updateIndicator()
     QPalette pal = composerEdit->palette();
     pal.setBrush(QPalette::Base, QBrush(pixmap));
     composerEdit->setPalette(pal);
+}
+
+void ComposerWidget::slotImage()
+{
+    QString imageFile = KFileDialog::getOpenFileName();
+    if (imageFile.isEmpty())
+        return;
+
+    QPixmap pixmap(imageFile);
+    if (pixmap.isNull())
+        return;
+
+    m_imageFile = imageFile;
+
+    pixmap = pixmap.scaled(composerLabel->size(), Qt::KeepAspectRatio);
+    composerLabel->setPixmap(pixmap);
+}
+
+void ComposerWidget::discard()
+{
+    reset();
+    emit postDiscarded();
+}
+
+void ComposerWidget::compose()
+{
+    QString text = composerEdit->toPlainText();
+    if (text.isEmpty())
+        return;
+
+    kWarning() << "enter pressed" << text;
+    Zzzz::Post p;
+    p.replyToStatusId = m_replyToStatusId;
+    p.text = text;
+    p.thumbnailPic = m_imageFile;
+    PostWrapper post(p);
+    post.setMyAccount(m_replyAccount);
+    emit postComposed(post);
+    reset();
 }

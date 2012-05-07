@@ -6,6 +6,7 @@ set(libzzzzprivate_SRCS
     addaccountwizardpage1.cpp
     addaccountwizardpage2.cpp
     mediafetcher.cpp
+    multipartdevice.cpp
     pluginmanager.cpp
     themeengine.cpp
     timelinemodel.cpp

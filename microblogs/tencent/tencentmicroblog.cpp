@@ -116,7 +116,7 @@ void TencentMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, 
 {
     apiUrl = "http://open.t.qq.com/api/t/add_pic";
     params.insert("format", "json");
-    params.insert("content", QUrl::toPercentEncoding(post.text));
+    params.insert("content", post.text.toUtf8());
     params.insert("clientip", "127.0.0.1");
 }
 
@@ -167,6 +167,11 @@ void TencentMicroBlog::removeFriendship(const Zzzz::User& user, QString& apiUrl,
 QRegExp TencentMicroBlog::usernameMatch() const
 {
     return QRegExp("@([a-zA-Z0-9-]+)", Qt::CaseInsensitive);
+}
+
+QRegExp TencentMicroBlog::topicMatch() const
+{
+    return QRegExp("#([^\\s]+)#", Qt::CaseInsensitive);
 }
 
 void TencentMicroBlog::readTimelineFromData(const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok)

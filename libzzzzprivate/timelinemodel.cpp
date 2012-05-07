@@ -153,7 +153,7 @@ void TimelineModel::slotAccountRemoved(const QString& alias, const Account* oldA
             beginRemoveRows(QModelIndex(), i, i);
             m_posts.removeAt(i);
             delete m_docs.takeAt(i);
-            beginRemoveRows(QModelIndex(), i, i);
+            endRemoveRows();
         } else {
             ++i;
         }

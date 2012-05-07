@@ -17,6 +17,7 @@ Q_SIGNALS:
     void retweetClicked(const PostWrapper& post);
     void usernameClicked(const PostWrapper& post, const QString& username);
     void topicClicked(const PostWrapper& post, const QString& topic);
+    void postComposed(const PostWrapper& post);
 private Q_SLOTS:
     void slotAnchorClicked(const QString& anchor, const QModelIndex& index);
 private:

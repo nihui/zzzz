@@ -3,6 +3,8 @@
 
 #include <QAbstractItemDelegate>
 
+class PostWrapper;
+
 class TimelineDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
@@ -18,8 +20,12 @@ public:
     virtual void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 Q_SIGNALS:
     void anchorClicked(const QString& anchor, const QModelIndex& index);
+    void postComposed(const PostWrapper& post);
+private Q_SLOTS:
+    void closeComposer();
 private:
     mutable int m_editingRow;
+    mutable QAbstractItemModel* m_editingModel;
 };
 
 #endif // TIMELINEDELEGATE_H

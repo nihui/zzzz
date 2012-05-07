@@ -27,6 +27,7 @@ public:
     virtual void createFriendship(const Zzzz::User& user, QString& apiUrl, ParamMap& params);
     virtual void removeFriendship(const Zzzz::User& user, QString& apiUrl, ParamMap& params);
     virtual QRegExp usernameMatch() const;
+    virtual QRegExp topicMatch() const;
     virtual void readTimelineFromData(const QByteArray& data, QList<Zzzz::Post>& postlist, bool* ok);
 protected:
     virtual void readPostFromJsonMap(const QVariantMap& varmap, Zzzz::Post& post);

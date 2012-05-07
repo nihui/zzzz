@@ -13,7 +13,7 @@ TwitterMicroBlog::~TwitterMicroBlog()
 
 QString TwitterMicroBlog::apiRoot() const
 {
-    return QString("https://api.twitter.com");
+    return QString("https://api.twitter.com/1");
 }
 
 QByteArray TwitterMicroBlog::oauthConsumerKey() const

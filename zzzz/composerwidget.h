@@ -22,10 +22,14 @@ protected:
     virtual bool eventFilter(QObject* obj, QEvent* event);
 private Q_SLOTS:
     void updateIndicator();
+    void slotImage();
+    void discard();
+    void compose();
 private:
     int m_limit;
     Account* m_replyAccount;
     QString m_replyToStatusId;
+    QString m_imageFile;
 };
 
 #endif // COMPOSERWIDGET_H

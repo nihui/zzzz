@@ -42,14 +42,17 @@ void TwitterCompatibleAPIMicroBlog::updateTimeline(Timeline t, QString& apiUrl, 
     case Home:
         apiUrl = apiRoot() + "/statuses/home_timeline.json";
         params.insert("count", "20");
+        params.insert("include_entities", "true");
         break;
     case Public:
         apiUrl = apiRoot() + "/statuses/public_timeline.json";
         params.insert("count", "20");
+        params.insert("include_entities", "true");
         break;
     case Mentions:
         apiUrl = apiRoot() + "/statuses/mentions.json";
         params.insert("count", "20");
+        params.insert("include_entities", "true");
         break;
     default:
         break;
@@ -61,6 +64,7 @@ void TwitterCompatibleAPIMicroBlog::updateUserTimeline(const Zzzz::User& user, Q
     apiUrl = apiRoot() + "/statuses/user_timeline.json";
     params.insert("screen_name", user.screenName.toUtf8().toPercentEncoding());
     params.insert("count", "20");
+    params.insert("include_entities", "true");
 }
 
 QStringList TwitterCompatibleAPIMicroBlog::timelines() const
@@ -73,6 +77,7 @@ void TwitterCompatibleAPIMicroBlog::updateTimeline(const QString& timeline, QStr
     if (timeline == "friends") {
         apiUrl = apiRoot() + "/statuses/friends_timeline.json";
         params.insert("count", "20");
+        params.insert("include_entities", "true");
     }
 }
 
@@ -91,7 +96,7 @@ void TwitterCompatibleAPIMicroBlog::createPost(const Zzzz::Post& post, QString& 
 void TwitterCompatibleAPIMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = apiRoot() + "/statuses/update_with_media.json";
-    params.insert("status", QUrl::toPercentEncoding(post.text));
+    params.insert("status", post.text.toUtf8());
     params.insert("in_reply_to_status_id", post.replyToStatusId.toUtf8());
 }
 
@@ -140,6 +145,21 @@ void TwitterCompatibleAPIMicroBlog::readPostFromJsonMap(const QVariantMap& varma
     post.replyToUserId = varmap["in_reply_to_user_id"].toString();
     post.replyToUserName = varmap["in_reply_to_screen_name"].toString();
     post.favorited = varmap["favorited"].toBool();
+
+    // extract thumbnail from entities
+    QVariantMap entitiesmap = varmap["entities"].toMap();
+    if (!entitiesmap.isEmpty()) {
+        QVariantList medialist = entitiesmap["media"].toList();
+        if (!medialist.isEmpty()) {
+            QVariantMap mediamap = medialist.at(0).toMap();
+            QString type = mediamap["type"].toString();
+            QString mediaurl = mediamap["media_url"].toString();
+            if (type == "photo" && !mediaurl.isEmpty()) {
+                post.thumbnailPic = mediaurl + ":thumb";
+                post.originalPic = mediaurl + ":large";
+            }
+        }
+    }
 }
 
 void TwitterCompatibleAPIMicroBlog::readUserFromJsonMap(const QVariantMap& varmap, Zzzz::User& user)

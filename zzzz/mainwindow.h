@@ -14,7 +14,7 @@ class Account;
 class TimelineWidget;
 class NavButtonsWidget;
 class PostWrapper;
-
+class MultiPartDevice;
 class TimelineModel;
 
 class MainWindow : public KXmlGuiWindow
@@ -50,6 +50,7 @@ private:
     QHash<KJob*, Account*> m_jobAccount;
     QHash<KJob*, QString> m_jobTimeline;
     QHash<KJob*, PostWrapper> m_jobPost;
+    QHash<KJob*, MultiPartDevice*> m_jobMultiPart;
     KSettings::Dialog* m_settingsDialog;
 };
 

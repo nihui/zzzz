@@ -14,6 +14,7 @@ TimelineDelegate::TimelineDelegate(QObject* parent)
     : QAbstractItemDelegate(parent)
 {
     m_editingRow = -1;
+    m_editingModel = 0;
 }
 
 TimelineDelegate::~TimelineDelegate()
@@ -22,23 +23,19 @@ TimelineDelegate::~TimelineDelegate()
 
 QWidget* TimelineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    kWarning();
     ComposerWidget* w = new ComposerWidget(parent);
+    connect(w, SIGNAL(postComposed(const PostWrapper&)),
+            this, SIGNAL(postComposed(const PostWrapper&)));
+    connect(w, SIGNAL(postComposed(const PostWrapper&)), this, SLOT(closeComposer()));
+    connect(w, SIGNAL(postDiscarded()), this, SLOT(closeComposer()));
     return w;
 }
 
 bool TimelineDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-//     kWarning() << event->type();
     QStyleOptionViewItemV4 opt(option);
 
-    if (event->type() == QEvent::MouseMove) {
-        QMouseEvent* e = static_cast<QMouseEvent*>(event);
-    }
-    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) {
-        QMouseEvent* e = static_cast<QMouseEvent*>(event);
-    }
-    if (event->type() == QEvent::MouseButtonRelease) {
+    if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent* e = static_cast<QMouseEvent*>(event);
         PostDocument* doc = static_cast<PostDocument*>(index.data(Qt::UserRole + 1).value<QObject*>());
         QString anchor = doc->documentLayout()->anchorAt(e->pos() - opt.rect.topLeft());
@@ -46,16 +43,19 @@ bool TimelineDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, con
             if (m_editingRow != -1 && m_editingRow != index.row()) {
                 emit sizeHintChanged(model->index(m_editingRow, 0));
                 m_editingRow = -1;
+                m_editingModel = 0;
             }
             if (!anchor.isEmpty()) {
                 emit anchorClicked(anchor, index);
                 if (anchor == "zzzz:reply") {
                     m_editingRow = index.row();
+                    m_editingModel = model;
                     emit sizeHintChanged(index);
                 }
             }
         }
     }
+
     return QAbstractItemDelegate::editorEvent(event, model, option, index);
 }
 
@@ -116,4 +116,13 @@ void TimelineDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptionV
 {
     editor->setGeometry(option.rect.x(), option.rect.y() + option.rect.height() - 100,
                         option.rect.width(), 100);
+}
+
+void TimelineDelegate::closeComposer()
+{
+    ComposerWidget* w = static_cast<ComposerWidget*>(sender());
+    emit closeEditor(w, QAbstractItemDelegate::NoHint);
+    emit sizeHintChanged(m_editingModel->index(m_editingRow, 0));
+    m_editingRow = -1;
+    m_editingModel = 0;
 }

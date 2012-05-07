@@ -27,8 +27,11 @@ public:
     bool isAuthorized() const;
     void authorize(bool force = false);
     void access(const QString& pincode);
+    QByteArray createAuthorizationHeader(const QString& requstUrl,
+                                         Zzzz::MicroBlog::HttpMethod httpMethod,
+                                         const Zzzz::MicroBlog::ParamMap& params);
     QByteArray createParametersString(const QString& requstUrl,
-                                      Zzzz::MicroBlog::HttpMethod type,
+                                      Zzzz::MicroBlog::HttpMethod httpMethod,
                                       const Zzzz::MicroBlog::ParamMap& params);
 
     void setAlias(const QString& alias);

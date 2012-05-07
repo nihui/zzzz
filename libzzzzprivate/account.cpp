@@ -135,6 +135,19 @@ void Account::access(const QString& pincode)
     qWarning() << "Zzzz is authorized successfully.";
 }
 
+QByteArray Account::createAuthorizationHeader(const QString& requstUrl,
+        Zzzz::MicroBlog::HttpMethod httpMethod,
+        const Zzzz::MicroBlog::ParamMap& params)
+{
+    if (httpMethod == Zzzz::MicroBlog::GET) {
+        return m_qoauth->createParametersString(requstUrl, QOAuth::GET, m_oauthToken, m_oauthTokenSecret,
+                                                QOAuth::HMAC_SHA1, params, QOAuth::ParseForHeaderArguments);
+    } else { /* httpMethod == Zzzz::MicroBlog::POST */
+        return m_qoauth->createParametersString(requstUrl, QOAuth::POST, m_oauthToken, m_oauthTokenSecret,
+                                                QOAuth::HMAC_SHA1, params, QOAuth::ParseForHeaderArguments);
+    }
+}
+
 QByteArray Account::createParametersString(const QString& requstUrl,
         Zzzz::MicroBlog::HttpMethod httpMethod,
         const Zzzz::MicroBlog::ParamMap& params)

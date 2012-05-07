@@ -28,6 +28,8 @@ TimelineWidget::TimelineWidget(QWidget* parent)
 
     connect(delegate, SIGNAL(anchorClicked(const QString&, const QModelIndex&)),
             this, SLOT(slotAnchorClicked(const QString&, const QModelIndex&)));
+    connect(delegate, SIGNAL(postComposed(const PostWrapper&)),
+            this, SIGNAL(postComposed(const PostWrapper&)));
 }
 
 TimelineWidget::~TimelineWidget()
@@ -53,7 +55,7 @@ void TimelineWidget::slotAnchorClicked(const QString& anchor, const QModelIndex&
         setCurrentIndex(index);
         edit(index);
 //         emit replyClicked(post);
-    } else if (anchor == "zzzz:retweet:") {
+    } else if (anchor == "zzzz:retweet") {
         emit retweetClicked(post);
     } else if (anchor.startsWith("zzzz:username:")) {
         QString username = anchor.section(':', 2, 2);

@@ -7,6 +7,7 @@
 
 #include <account.h>
 #include <accountmanager.h>
+#include <multipartdevice.h>
 #include <pluginmanager.h>
 #include <timelinemodel.h>
 
@@ -20,6 +21,7 @@
 #include <KApplication>
 #include <KAction>
 #include <KActionCollection>
+#include <KMimeType>
 #include <KSettings/Dialog>
 #include <KStandardAction>
 #include <KStatusNotifierItem>
@@ -33,6 +35,7 @@
 #include <QVBoxLayout>
 
 #include <QTimer>
+#include <QFile>
 
 static QString timeline2String(Zzzz::MicroBlog::Timeline t)
 {
@@ -300,6 +303,7 @@ void MainWindow::slotUpdateTimeline(KJob* job)
 
 void MainWindow::createPost(const PostWrapper& post)
 {
+    bool noImage = post.thumbnailPic().isEmpty();
     Account* account = post.myAccount();
     if (account) {
         /// use the specified account for posting
@@ -309,13 +313,35 @@ void MainWindow::createPost(const PostWrapper& post)
         /// create post for microblog service
         QString apiUrl;
         Zzzz::MicroBlog::ParamMap params;
-        microblog->createPost(post.internalPost(), apiUrl, params);
+        if (noImage) {
+            microblog->createPost(post.internalPost(), apiUrl, params);
+        }
+        else {
+            microblog->createMediaPost(post.internalPost(), apiUrl, params);
+        }
 
         KUrl url(apiUrl);
-        QByteArray rc = account->createParametersString(apiUrl, Zzzz::MicroBlog::POST, params);
 
-        KIO::StoredTransferJob* job = KIO::storedHttpPost(rc, url, KIO::HideProgressInfo);
-        job->addMetaData("content-type", "Content-Type: application/x-www-form-urlencoded");
+        KIO::StoredTransferJob* job;
+        if (noImage) {
+            QByteArray rc = account->createParametersString(apiUrl, Zzzz::MicroBlog::POST, params);
+            job = KIO::storedHttpPost(rc, url, KIO::HideProgressInfo);
+            job->addMetaData("content-type", "Content-Type: application/x-www-form-urlencoded");
+        }
+        else {
+            MultiPartDevice* mpd = new MultiPartDevice(post.thumbnailPic());
+            mpd->open(QIODevice::ReadOnly);
+            QByteArray boundary("AaB03x");
+            QByteArray fn = post.thumbnailPic().section('/', -1, -1, QString::SectionSkipEmpty).toUtf8().toPercentEncoding();
+            mpd->setBoundary(boundary);
+            mpd->setContentDispositionHeader("form-data; name=\"media[]\"; filename=\"" + fn + "\"");
+            mpd->setContentTypeHeader(KMimeType::findByUrl(post.thumbnailPic(), 0, true)->name().toUtf8());
+            mpd->setFormData(params);
+            job = KIO::storedHttpPost(mpd, url, -1, KIO::HideProgressInfo);
+            job->addMetaData("content-type", "Content-Type: multipart/form-data; boundary=" + boundary);
+            job->addMetaData("customHTTPHeader", "Authorization: " + account->createAuthorizationHeader(apiUrl, Zzzz::MicroBlog::POST, Zzzz::MicroBlog::ParamMap()));
+            m_jobMultiPart[ job ] = mpd;
+        }
         m_jobAccount[ job ] = account;
         m_jobPost[ job ] = post;
         connect(job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)));
@@ -335,13 +361,35 @@ void MainWindow::createPost(const PostWrapper& post)
             /// create post for microblog service
             QString apiUrl;
             Zzzz::MicroBlog::ParamMap params;
-            microblog->createPost(post.internalPost(), apiUrl, params);
+            if (noImage) {
+                microblog->createPost(post.internalPost(), apiUrl, params);
+            }
+            else {
+                microblog->createMediaPost(post.internalPost(), apiUrl, params);
+            }
 
             KUrl url(apiUrl);
-            QByteArray rc = account->createParametersString(apiUrl, Zzzz::MicroBlog::POST, params);
 
-            KIO::StoredTransferJob* job = KIO::storedHttpPost(rc, url, KIO::HideProgressInfo);
-            job->addMetaData("content-type", "Content-Type: application/x-www-form-urlencoded");
+            KIO::StoredTransferJob* job;
+            if (noImage) {
+                QByteArray rc = account->createParametersString(apiUrl, Zzzz::MicroBlog::POST, params);
+                job = KIO::storedHttpPost(rc, url, KIO::HideProgressInfo);
+                job->addMetaData("content-type", "Content-Type: application/x-www-form-urlencoded");
+            }
+            else {
+                MultiPartDevice* mpd = new MultiPartDevice(post.thumbnailPic());
+                mpd->open(QIODevice::ReadOnly);
+                QByteArray boundary("AaB03x");
+                QByteArray fn = post.thumbnailPic().section('/', -1, -1, QString::SectionSkipEmpty).toUtf8().toPercentEncoding();
+                mpd->setBoundary(boundary);
+                mpd->setContentDispositionHeader("form-data; name=\"media[]\"; filename=\"" + fn + "\"");
+                mpd->setContentTypeHeader(KMimeType::findByUrl(post.thumbnailPic(), 0, true)->name().toUtf8());
+                mpd->setFormData(params);
+                job = KIO::storedHttpPost(mpd, url, -1, KIO::HideProgressInfo);
+                job->addMetaData("content-type", "Content-Type: multipart/form-data; boundary=" + boundary);
+                job->addMetaData("customHTTPHeader", "Authorization: " + account->createAuthorizationHeader(apiUrl, Zzzz::MicroBlog::POST, Zzzz::MicroBlog::ParamMap()));
+                m_jobMultiPart[ job ] = mpd;
+            }
             m_jobAccount[ job ] = account;
             m_jobPost[ job ] = post;
             connect(job, SIGNAL(result(KJob*)), this, SLOT(slotCreatePost(KJob*)));
@@ -359,6 +407,8 @@ void MainWindow::slotCreatePost(KJob* job)
 
     Account* account = m_jobAccount.take(job);
     const PostWrapper& refPost = m_jobPost.take(job);
+    delete m_jobMultiPart.take(job);
+
     KIO::StoredTransferJob* j = static_cast<KIO::StoredTransferJob*>(job);
     qWarning() << QString::fromUtf8(j->data());
     Zzzz::MicroBlog* microblog = account->microblog();
@@ -419,12 +469,14 @@ void MainWindow::createTimelineWidget(const QString& timelineName, const QString
     m_timelineWidget[ timelineName ] = tw;
     connect(tw, SIGNAL(userClicked(const PostWrapper&)),
             this, SLOT(updateUserTimeline(const PostWrapper&)));
-//     connect(tw, SIGNAL(replyClicked(const PostWrapper&)),
-//             ComposerWidget::self(), SLOT(composeReply(const PostWrapper&)));
+
     connect(tw, SIGNAL(retweetClicked(const PostWrapper&)),
             this, SLOT(retweetPost(const PostWrapper&)));
     connect(tw, SIGNAL(usernameClicked(const PostWrapper&, const QString&)),
             this, SLOT(updateUserTimeline(const PostWrapper&, const QString&)));
+
+    connect(tw, SIGNAL(postComposed(const PostWrapper&)),
+            this, SLOT(createPost(const PostWrapper&)));
 
     TimelineModel* model = new TimelineModel;
     m_timelineModel[ timelineName ] = model;

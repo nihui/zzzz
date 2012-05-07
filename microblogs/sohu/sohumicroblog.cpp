@@ -95,7 +95,7 @@ void SohuMicroBlog::createPost(const Zzzz::Post& post, QString& apiUrl, ParamMap
 void SohuMicroBlog::createMediaPost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
 {
     apiUrl = "http://api.t.sohu.com/statuses/upload.json";
-    params.insert("status", QUrl::toPercentEncoding(post.text));
+    params.insert("status", post.text.toUtf8());
 }
 
 void SohuMicroBlog::removePost(const Zzzz::Post& post, QString& apiUrl, ParamMap& params)
