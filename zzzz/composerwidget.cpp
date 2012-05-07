@@ -1,9 +1,5 @@
 #include "composerwidget.h"
 
-#include <KDebug>
-#include <KPushButton>
-
-#include <QHBoxLayout>
 #include <QFocusEvent>
 #include <QKeyEvent>
 #include <QPaintEvent>
@@ -12,28 +8,25 @@
 #include <QBrush>
 #include <QPixmap>
 
+#include <KDebug>
+
 #include <types.h>
 
 #include "typeswrapper.h"
 
-ComposerWidget* ComposerWidget::m_self = 0;
-
-ComposerWidget* ComposerWidget::self()
-{
-    if (!m_self)
-        m_self = new ComposerWidget;
-    return m_self;
-}
-
 ComposerWidget::ComposerWidget(QWidget* parent)
-    : KTextEdit(parent)
+    : QWidget(parent)
 {
-    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    setupUi(this);
+
+    setAutoFillBackground(true);
 
     m_limit = 150;
     m_replyAccount = 0;
 
-    connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+    composerEdit->installEventFilter(this);
+
+    connect(composerEdit, SIGNAL(textChanged()), this, SLOT(updateIndicator()));
 }
 
 ComposerWidget::~ComposerWidget()
@@ -43,12 +36,12 @@ ComposerWidget::~ComposerWidget()
 void ComposerWidget::setCharLimit(int limit)
 {
     m_limit = limit;
-    slotTextChanged();
+    updateIndicator();
 }
 
 void ComposerWidget::reset()
 {
-    clear();
+    composerEdit->clear();
     m_replyAccount = 0;
     m_replyToStatusId.clear();
 }
@@ -57,51 +50,49 @@ void ComposerWidget::composeReply(const PostWrapper& post)
 {
     m_replyAccount = post.myAccount();
     m_replyToStatusId = post.id();
-    setPlainText("@" + post.userScreenName() + " " + toPlainText());
-    setFocus();
+    composerEdit->setPlainText("@" + post.userScreenName() + " " + composerEdit->toPlainText());
+    composerEdit->setFocus();
 }
 
-void ComposerWidget::focusOutEvent(QFocusEvent* event)
+bool ComposerWidget::eventFilter(QObject* obj, QEvent* event)
 {
-    reset();
-    hide();
-}
+    if (obj != composerEdit) {
+        return QObject::eventFilter(obj, event);
+    }
 
-void ComposerWidget::keyPressEvent(QKeyEvent* event)
-{
-    if (event->key() == Qt::Key_Return) {
-        QString text = toPlainText();
-        if (!text.isEmpty()) {
-            kWarning() << "enter pressed" << text;
-            Zzzz::Post p;
-            p.replyToStatusId = m_replyToStatusId;
-            p.text = text;
-            PostWrapper post(p);
-            post.setMyAccount(m_replyAccount);
-            emit postComposed(post);
-            reset();
-            hide();
+    if (event->type() == QEvent::Resize) {
+        updateIndicator();
+    }
+    else if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* e = static_cast<QKeyEvent*>(event);
+        if (e->key() == Qt::Key_Return) {
+            QString text = composerEdit->toPlainText();
+            if (!text.isEmpty()) {
+                kWarning() << "enter pressed" << text;
+                Zzzz::Post p;
+                p.replyToStatusId = m_replyToStatusId;
+                p.text = text;
+                PostWrapper post(p);
+                post.setMyAccount(m_replyAccount);
+                emit postComposed(post);
+    //             reset();
+    //             hide();
+            }
         }
-        return;
+        if (e->key() == Qt::Key_Escape) {
+    //         reset();
+    //         hide();
+            emit postDiscarded();
+        }
     }
-    if (event->key() == Qt::Key_Escape) {
-        reset();
-        hide();
-        return;
-    }
-    KTextEdit::keyPressEvent(event);
+
+    return QObject::eventFilter(obj, event);
 }
 
-void ComposerWidget::resizeEvent(QResizeEvent* event)
+void ComposerWidget::updateIndicator()
 {
-    slotTextChanged();
-    KTextEdit::resizeEvent(event);
-}
-
-void ComposerWidget::slotTextChanged()
-{
-    int num = m_limit - toPlainText().size();
-    QPixmap pixmap(width(), height());
+    int num = m_limit - composerEdit->toPlainText().size();
+    QPixmap pixmap(composerEdit->width(), composerEdit->height());
     pixmap.fill(Qt::white);
     QPainter p(&pixmap);
     QFont font = p.font();
@@ -113,8 +104,8 @@ void ComposerWidget::slotTextChanged()
     else
         pen.setColor(QColor(100, 200, 100));
     p.setPen(pen);
-    p.drawText(0, 0, width() - 10, height(), Qt::AlignBottom | Qt::AlignRight, QString::number(m_limit - toPlainText().size()));
-    QPalette pal = palette();
+    p.drawText(0, 0, composerEdit->width() - 10, composerEdit->height(), Qt::AlignBottom | Qt::AlignRight, QString::number(num));
+    QPalette pal = composerEdit->palette();
     pal.setBrush(QPalette::Base, QBrush(pixmap));
-    setPalette(pal);
+    composerEdit->setPalette(pal);
 }

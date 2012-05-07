@@ -5,7 +5,12 @@ set(zzzz_SRCS
     main.cpp
     mainwindow.cpp
     navbuttonswidget.cpp
+    timelinedelegate.cpp
     timelinewidget.cpp
+)
+
+kde4_add_ui_files(zzzz_SRCS
+    composerwidget.ui
 )
 
 kde4_add_executable(zzzz_bin ${zzzz_SRCS})

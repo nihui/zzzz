@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "composerwidget.h"
 #include "navbuttonswidget.h"
+#include "timelinedelegate.h"
 #include "timelinewidget.h"
 #include "typeswrapper.h"
 
@@ -81,8 +82,8 @@ MainWindow::MainWindow()
     m_stackedLayout->setSpacing(0);
     mainLayout->addLayout(m_stackedLayout);
 
-    connect(ComposerWidget::self(), SIGNAL(postComposed(const PostWrapper&)),
-            this, SLOT(createPost(const PostWrapper&)));
+//     connect(ComposerWidget::self(), SIGNAL(postComposed(const PostWrapper&)),
+//             this, SLOT(createPost(const PostWrapper&)));
 
     createTimelineWidget("__HOME__", "user-home", true);
     createTimelineWidget("__PUBLIC__", "applications-internet", false);

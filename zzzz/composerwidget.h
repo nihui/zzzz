@@ -1,32 +1,28 @@
 #ifndef COMPOSERWIDGET_H
 #define COMPOSERWIDGET_H
 
-#include <KTextEdit>
+#include "ui_composerwidget.h"
 
 class Account;
 class PostWrapper;
 
-class ComposerWidget : public KTextEdit
+class ComposerWidget : public QWidget, public Ui::ComposerWidget
 {
     Q_OBJECT
 public:
-    static ComposerWidget* self();
+    explicit ComposerWidget(QWidget* parent = 0);
     virtual ~ComposerWidget();
     void setCharLimit(int limit);
     void reset();
+    void composeReply(const PostWrapper& post);
 Q_SIGNALS:
     void postComposed(const PostWrapper& post);
-public Q_SLOTS:
-    void composeReply(const PostWrapper& post);
+    void postDiscarded();
 protected:
-    virtual void focusOutEvent(QFocusEvent* event);
-    virtual void keyPressEvent(QKeyEvent* event);
-    virtual void resizeEvent(QResizeEvent* event);
+    virtual bool eventFilter(QObject* obj, QEvent* event);
 private Q_SLOTS:
-    void slotTextChanged();
+    void updateIndicator();
 private:
-    explicit ComposerWidget(QWidget* parent = 0);
-    static ComposerWidget* m_self;
     int m_limit;
     Account* m_replyAccount;
     QString m_replyToStatusId;

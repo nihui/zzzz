@@ -5,6 +5,7 @@
 
 #include <types.h>
 
+#include "timelinedelegate.h"
 #include "composerwidget.h"
 #include <KToolInvocation>
 
@@ -19,8 +20,8 @@ TimelineWidget::TimelineWidget(QWidget* parent)
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAlternatingRowColors(true);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    setSelectionMode(QAbstractItemView::NoSelection);
-
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     TimelineDelegate* delegate = new TimelineDelegate;
     setItemDelegate(delegate);
@@ -46,19 +47,12 @@ void TimelineWidget::slotAnchorClicked(const QString& anchor, const QModelIndex&
     kWarning() << anchor;
     PostWrapper post = index.data(Qt::UserRole).value<PostWrapper>();
 
-    QRect rect = visualRect(index);
-
     if (anchor == "zzzz:user") {
         emit userClicked(post);
     } else if (anchor == "zzzz:reply") {
-        ComposerWidget::self()->composeReply(post);
-        QPoint pos(rect.x(), rect.y() + rect.height());
-        ComposerWidget::self()->move(mapToGlobal(pos));
-        ComposerWidget::self()->resize(rect.width(), 150);
-        ComposerWidget::self()->show();
-        ComposerWidget::self()->raise();
-        ComposerWidget::self()->activateWindow();
-        emit replyClicked(post);
+        setCurrentIndex(index);
+        edit(index);
+//         emit replyClicked(post);
     } else if (anchor == "zzzz:retweet:") {
         emit retweetClicked(post);
     } else if (anchor.startsWith("zzzz:username:")) {

@@ -3,9 +3,6 @@
 #include "themeengine.h"
 #include "mediafetcher.h"
 
-#include <QAbstractTextDocumentLayout>
-#include <QApplication>
-#include <QPainter>
 #include <QTextDocument>
 #include <QUrl>
 #include <QPixmapCache>
@@ -66,6 +63,11 @@ QVariant TimelineModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
+}
+
+Qt::ItemFlags TimelineModel::flags(const QModelIndex& index) const
+{
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
 QVariant TimelineModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -156,71 +158,5 @@ void TimelineModel::slotAccountRemoved(const QString& alias, const Account* oldA
             ++i;
         }
     }
-}
-
-
-TimelineDelegate::TimelineDelegate(QObject* parent)
-    : QAbstractItemDelegate(parent)
-{
-}
-
-TimelineDelegate::~TimelineDelegate()
-{
-}
-
-bool TimelineDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
-{
-    QStyleOptionViewItemV4 opt(option);
-
-    if (event->type() == QEvent::MouseMove) {
-        QMouseEvent* e = static_cast<QMouseEvent*>(event);
-    }
-    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick) {
-        QMouseEvent* e = static_cast<QMouseEvent*>(event);
-    }
-    if (event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent* e = static_cast<QMouseEvent*>(event);
-        PostDocument* doc = static_cast<PostDocument*>(index.data(Qt::UserRole + 1).value<QObject*>());
-        QString anchor = doc->documentLayout()->anchorAt(e->pos() - opt.rect.topLeft());
-        if (!anchor.isEmpty() && e->button() == Qt::LeftButton)
-            emit anchorClicked(anchor, index);
-    }
-    return true;
-}
-
-void TimelineDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
-{
-    QStyleOptionViewItemV4 opt(option);
-    QStyle* style = opt.widget ? opt.widget->style() : QApplication::style();
-//     style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
-
-    QAbstractTextDocumentLayout::PaintContext ctx;
-
-//     // highlight text if item is selected
-//     if (opt.state & QStyle::State_Selected)
-//         ctx.palette.setColor(QPalette::Text, opt.palette.color(QPalette::Active, QPalette::HighlightedText));
-
-//     PostWrapper post = index.data(Qt::UserRole).value<PostWrapper>();
-
-    PostDocument* doc = static_cast<PostDocument*>(index.data(Qt::UserRole + 1).value<QObject*>());
-//     doc.setHtml(ThemeEngine::self()->render(post));
-    doc->setTextWidth(opt.rect.width());
-
-    painter->save();
-    painter->translate(opt.rect.topLeft());
-    doc->documentLayout()->draw(painter, ctx);
-    painter->restore();
-}
-
-QSize TimelineDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
-{
-    QStyleOptionViewItemV4 opt(option);
-
-//     PostWrapper post = index.data(Qt::UserRole).value<PostWrapper>();
-
-    PostDocument* doc = static_cast<PostDocument*>(index.data(Qt::UserRole + 1).value<QObject*>());
-//     doc.setHtml(ThemeEngine::self()->render(post));
-    doc->setTextWidth(opt.rect.width());
-    return QSize(doc->idealWidth(), doc->size().height());
 }
 
